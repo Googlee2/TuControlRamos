@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuControlRamos - Control Total</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TuControlRamos - Mobile & Web</title>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -12,57 +12,131 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             --dark: #0f172a;
+            --light-bg: #f3f4f6;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #e2e8f0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #e5e7eb;
             margin: 0;
-            display: flex; justify-content: center; align-items: center;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
             min-height: 100vh;
+            box-sizing: border-box;
         }
 
+        /* Contenedor Adaptable */
         .card {
-            background: white; padding: 25px; border-radius: 16px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 95%; max-width: 900px;
+            width: 100%;
+            max-width: 850px;
+            margin: auto;
         }
 
         .hidden { display: none !important; }
 
-        /* Login */
-        .login-box { max-width: 400px; text-align: center; margin: auto; }
-        input, select, button {
-            width: 100%; padding: 12px; margin: 8px 0;
-            border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box;
-        }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
-
-        /* Estilos de Paneles */
-        .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
+        /* Login Optimizado para Celular */
+        .login-box { max-width: 350px; text-align: center; }
         
-        .grid-archivos {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px; margin-top: 15px;
+        h2 { color: var(--primary); font-size: 1.5rem; margin-bottom: 20px; }
+
+        input, select, button {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            font-size: 16px; /* Evita zoom automático en iPhone */
+            box-sizing: border-box;
         }
 
-        .file-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center; }
-        .preview-img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
 
-        /* Gestión de Usuarios Table */
-        .user-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .user-table th, .user-table td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
-        .user-table th { background: #f8fafc; }
+        button:active { transform: scale(0.96); }
 
-        .btn-small { padding: 5px 10px; font-size: 0.75rem; width: auto; margin: 2px; }
+        /* Estructura de Paneles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
 
-        /* Modal Viewer */
+        .header h2 { margin: 0; font-size: 1.2rem; }
+
+        /* Sección de Carga */
+        .upload-section {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Grilla de Archivos Adaptable */
+        .grid-archivos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .grid-archivos { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .file-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 8px;
+            text-align: center;
+            position: relative;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #cbd5e1;
+        }
+
+        .file-name {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Tabla de Usuarios (Scroll horizontal en celular) */
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th, td { padding: 10px; border: 1px solid #e5e7eb; font-size: 0.85rem; }
+
+        /* Visor de Imagen Full */
         #modalViewer {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.85); display: none;
-            justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(0,0,0,0.9); display: none;
+            justify-content: center; align-items: center; z-index: 9999;
         }
-        #modalViewer img { max-width: 90%; max-height: 85%; border-radius: 5px; }
+        #modalViewer img { max-width: 95%; max-height: 90%; border-radius: 8px; }
+
+        .btn-small { padding: 6px; font-size: 0.7rem; width: auto; margin: 2px; }
     </style>
 </head>
 <body>
@@ -72,56 +146,56 @@
 </div>
 
 <div class="card login-box" id="loginSection">
-    <h2 style="color: var(--primary);">TuControlRamos</h2>
+    <h2>TuControlRamos</h2>
     <input type="text" id="userInput" placeholder="Usuario">
     <input type="password" id="passInput" placeholder="Contraseña">
-    <button onclick="login()">INGRESAR AL PANEL</button>
-    <p id="errorMsg" style="color:red; font-size:0.8rem;"></p>
+    <button onclick="login()">INGRESAR</button>
+    <p id="errorMsg" style="color:var(--danger); font-size:0.8rem;"></p>
 </div>
 
 <div class="card hidden" id="panelEmpresa">
-    <div class="header-panel">
-        <h2 id="welcomeEmpresa">Panel Empresa</h2>
-        <button onclick="logout()" style="width:auto; background:var(--danger)">Cerrar Sesión</button>
+    <div class="header">
+        <h2 id="welcomeEmpresa">Mi Panel</h2>
+        <button onclick="logout()" class="btn-small" style="background:var(--danger)">Salir</button>
     </div>
-    <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <strong>Cargar en TuControlRamos/</strong>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <select id="folderSelect" style="flex:1">
-                <option value="imag">imag/</option>
-                <option value="read">read/</option>
-            </select>
-            <input type="file" id="fileInput" style="flex:2">
-            <button onclick="upload()" style="flex:1; background:var(--success)">SUBIR</button>
-        </div>
+    
+    <div class="upload-section">
+        <strong>Subir Archivo</strong>
+        <select id="folderSelect">
+            <option value="imag">Carpeta: imag/</option>
+            <option value="read">Carpeta: read/</option>
+        </select>
+        <input type="file" id="fileInput" accept="image/*">
+        <button onclick="upload()" style="background:var(--success)">CARGAR AHORA</button>
     </div>
-    <h3>Mis Archivos</h3>
+
+    <h3>Mis Imágenes/Docs</h3>
     <div class="grid-archivos" id="empresaGrid"></div>
 </div>
 
 <div class="card hidden" id="panelAdmin">
-    <div class="header-panel">
-        <h2 style="color:var(--primary)">Control Maestro - Admin</h2>
-        <button onclick="logout()" style="width:auto; background:var(--danger)">Salir</button>
+    <div class="header">
+        <h2>Panel Maestro</h2>
+        <button onclick="logout()" class="btn-small" style="background:var(--danger)">Salir</button>
     </div>
 
-    <div style="background:#fff7ed; padding:15px; border-radius:10px; border:1px solid #ffedd5; margin-bottom:20px;">
-        <h3 style="margin-top:0; color:#9a3412">Gestión de Usuarios y Accesos</h3>
-        <table class="user-table">
+    <div class="table-wrapper">
+        <h3 style="font-size: 1rem;">Gestión de Accesos</h3>
+        <table>
             <thead>
                 <tr>
                     <th>Rol</th>
-                    <th>Nombre de Usuario</th>
-                    <th>Contraseña</th>
-                    <th>Acción</th>
+                    <th>Usuario</th>
+                    <th>Clave</th>
+                    <th>Guardar</th>
                 </tr>
             </thead>
             <tbody id="userTableBody"></tbody>
         </table>
     </div>
 
-    <h3>Gestión de Archivos (Empresa)</h3>
-    <div style="margin-bottom:10px;">
+    <h3>Archivos de Empresa</h3>
+    <div style="margin-bottom: 10px;">
         <button onclick="renderFiles('admin','all')" class="btn-small">Todos</button>
         <button onclick="renderFiles('admin','imag')" class="btn-small" style="background:var(--secondary)">imag/</button>
         <button onclick="renderFiles('admin','read')" class="btn-small" style="background:var(--secondary)">read/</button>
@@ -130,13 +204,12 @@
 </div>
 
 <script>
-    // Inicializar credenciales en LocalStorage si no existen
+    // Inicialización de credenciales
     if (!localStorage.getItem('TCR_CRED')) {
-        const creds = {
+        localStorage.setItem('TCR_CRED', JSON.stringify({
             admin: { u: "admin", p: "colgate" },
             empresa: { u: "empresa35", p: "flac" }
-        };
-        localStorage.setItem('TCR_CRED', JSON.stringify(creds));
+        }));
     }
 
     function login() {
@@ -149,7 +222,7 @@
             renderAdminUsers();
             renderFiles('admin');
         } else if (u === creds.empresa.u && p === creds.empresa.p) {
-            document.getElementById('welcomeEmpresa').textContent = "Panel: " + u;
+            document.getElementById('welcomeEmpresa').textContent = u;
             showPanel('panelEmpresa');
             renderFiles('empresa');
         } else {
@@ -162,22 +235,20 @@
         document.getElementById(id).classList.remove('hidden');
     }
 
-    // GESTIÓN DE USUARIOS (Solo Admin)
     function renderAdminUsers() {
         const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
-        const container = document.getElementById('userTableBody');
-        container.innerHTML = `
+        document.getElementById('userTableBody').innerHTML = `
             <tr>
-                <td><strong>Administrador</strong></td>
-                <td><input type="text" id="editUAdmin" value="${creds.admin.u}"></td>
-                <td><input type="text" id="editPAdmin" value="${creds.admin.p}"></td>
-                <td><button onclick="saveCreds('admin')" class="btn-small" style="background:var(--success)">Guardar</button></td>
+                <td>Admin</td>
+                <td><input type="text" id="editUAdmin" value="${creds.admin.u}" style="padding:5px"></td>
+                <td><input type="text" id="editPAdmin" value="${creds.admin.p}" style="padding:5px"></td>
+                <td><button onclick="saveCreds('admin')" class="btn-small" style="background:var(--success)">OK</button></td>
             </tr>
             <tr>
-                <td><strong>Empresa</strong></td>
-                <td><input type="text" id="editUEmpresa" value="${creds.empresa.u}"></td>
-                <td><input type="text" id="editPEmpresa" value="${creds.empresa.p}"></td>
-                <td><button onclick="saveCreds('empresa')" class="btn-small" style="background:var(--success)">Guardar</button></td>
+                <td>Empresa</td>
+                <td><input type="text" id="editUEmpresa" value="${creds.empresa.u}" style="padding:5px"></td>
+                <td><input type="text" id="editPEmpresa" value="${creds.empresa.p}" style="padding:5px"></td>
+                <td><button onclick="saveCreds('empresa')" class="btn-small" style="background:var(--success)">OK</button></td>
             </tr>
         `;
     }
@@ -192,19 +263,26 @@
             creds.empresa.p = document.getElementById('editPEmpresa').value;
         }
         localStorage.setItem('TCR_CRED', JSON.stringify(creds));
-        alert("Credenciales de " + type + " actualizadas con éxito.");
+        alert("Actualizado.");
     }
 
-    // GESTIÓN DE ARCHIVOS
     function upload() {
         const input = document.getElementById('fileInput');
-        const folder = document.getElementById('folderSelect').value;
-        if(!input.files[0]) return alert("Selecciona archivo");
+        if(!input.files[0]) return alert("Selecciona una foto");
 
         const reader = new FileReader();
         reader.onload = function(e) {
             const db = JSON.parse(localStorage.getItem('TCR_FILES') || '[]');
-            db.push({ id: Date.now(), name: input.files[0].name, folder: folder, data: e.target.result, isImg: input.files[0].type.startsWith('image') });
+            // Límite de seguridad: si hay muchas fotos, borra la más vieja para que GitHub no se bloquee
+            if(db.length > 15) db.shift(); 
+            
+            db.push({
+                id: Date.now(),
+                name: input.files[0].name,
+                folder: document.getElementById('folderSelect').value,
+                data: e.target.result,
+                isImg: input.files[0].type.startsWith('image')
+            });
             localStorage.setItem('TCR_FILES', JSON.stringify(db));
             renderFiles('empresa');
             input.value = '';
@@ -216,16 +294,18 @@
         const grid = document.getElementById(role === 'empresa' ? 'empresaGrid' : 'adminGrid');
         let db = JSON.parse(localStorage.getItem('TCR_FILES') || '[]');
         if(filter !== 'all') db = db.filter(f => f.folder === filter);
-        grid.innerHTML = db.length === 0 ? '<p>Vacío</p>' : '';
+        
+        grid.innerHTML = db.length === 0 ? '<p style="font-size:0.8rem">Sin archivos.</p>' : '';
 
         db.forEach(file => {
             const thumb = file.isImg ? file.data : 'https://cdn-icons-png.flaticon.com/512/124/124837.png';
-            let html = `<div class="file-card">
-                <img src="${thumb}" class="preview-img" onclick="openFull('${file.data}')">
-                <div style="font-size:0.7rem; font-weight:bold; margin-top:5px;">${file.name}</div>
-                <span style="font-size:0.6rem; background:#eee; padding:2px 5px;">/${file.folder}</span>`;
+            let html = `
+                <div class="file-card">
+                    <img src="${thumb}" class="preview-img" onclick="openFull('${file.data}')">
+                    <div class="file-name">${file.name}</div>
+                    <span style="font-size:10px; color:gray">/${file.folder}</span>`;
             if(role === 'admin') {
-                html += `<div style="margin-top:5px;">
+                html += `<div style="margin-top:5px">
                     <button onclick="moveF(${file.id})" class="btn-small" style="background:var(--secondary)">Mover</button>
                     <button onclick="delF(${file.id})" class="btn-small" style="background:var(--danger)">X</button>
                 </div>`;
@@ -250,6 +330,7 @@
     }
 
     function openFull(src) {
+        if(!src.startsWith('data:image')) return alert("No es una imagen");
         document.getElementById('imgFull').src = src;
         document.getElementById('modalViewer').style.display = 'flex';
     }
