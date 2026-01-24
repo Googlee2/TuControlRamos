@@ -1,258 +1,336 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuControlRamos - Gestión de Archivos</title>
-    <style>
-        :root {
-            --primary: #1e3a8a;
-            --secondary: #3b82f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg: #f1f5f9;
-        }
+<meta charset="UTF-8">
+<title>TuControlRamos – Cargador de Datos Online</title>
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #e2e8f0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#dff3ff;
+  margin:0;
+}
+.container{
+  max-width:1200px;
+  margin:30px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+h2{text-align:center}
+input,select,button{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+}
+button{
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+.green{background:#2ecc71;color:#fff}
+.red{background:#e74c3c;color:#fff}
+.hidden{display:none}
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 95%;
-            max-width: 900px;
-        }
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:center
+}
 
-        .hidden { display: none !important; }
+.progress{
+  width:100%;
+  height:22px;
+  background:#ddd;
+  border-radius:12px;
+  overflow:hidden;
+  margin:10px 0;
+}
+.progress div{
+  height:100%;
+  width:0%;
+  transition:.3s;
+}
 
-        /* Login */
-        .login-box { max-width: 400px; text-align: center; margin: auto; }
-        input, select, button {
-            width: 100%; padding: 12px; margin: 8px 0;
-            border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box;
-        }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { opacity: 0.9; }
-
-        /* Galería */
-        .grid-archivos {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px; margin-top: 20px;
-        }
-
-        .file-card {
-            border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 10px; text-align: center; background: #fff;
-        }
-
-        .preview-img {
-            width: 100%; height: 100px; object-fit: cover;
-            border-radius: 8px; background: #f8fafc; margin-bottom: 8px;
-            cursor: zoom-in;
-        }
-
-        .file-name { font-size: 0.8rem; font-weight: bold; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #dbeafe; color: #1e40af; }
-
-        /* Controles Admin */
-        .controls { display: flex; gap: 4px; margin-top: 8px; }
-        .btn-small { padding: 5px; font-size: 0.7rem; flex: 1; }
-        .btn-move { background: var(--secondary); }
-        .btn-rename { background: var(--warning); }
-        .btn-del { background: var(--danger); }
-        
-        .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-
-        /* MODAL PARA VER IMAGEN */
-        #modalViewer {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); display: none;
-            justify-content: center; align-items: center; z-index: 1000;
-        }
-        #modalViewer img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        #modalViewer .close-btn { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
-    </style>
+img.preview{
+  max-width:120px;
+  max-height:90px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  object-fit:contain;
+}
+.small-btn{
+  padding:6px 10px;
+  width:auto;
+}
+</style>
 </head>
 <body>
 
-<div id="modalViewer" onclick="this.style.display='none'">
-    <span class="close-btn">&times;</span>
-    <img id="imgFull" src="">
+<!-- LOGIN -->
+<div class="container" id="loginBox">
+  <h2>Ingreso</h2>
+  <select id="tipo">
+    <option value="admin">Administrador</option>
+    <option value="empresa">Empresa</option>
+  </select>
+  <input id="user" placeholder="Usuario">
+  <input id="pass" type="password" placeholder="Contraseña">
+  <button class="green" onclick="login()">Ingresar</button>
 </div>
 
-<div class="card login-box" id="loginSection">
-    <h2 style="color: var(--primary);">TuControlRamos</h2>
-    <input type="text" id="userInput" placeholder="Usuario">
-    <input type="password" id="passInput" placeholder="Contraseña">
-    <select id="roleInput">
-        <option value="empresa">Empresa</option>
-        <option value="admin">Administrador</option>
-    </select>
-    <button onclick="login()">INGRESAR</button>
-    <p id="errorMsg" style="color:red; font-size:0.8rem;"></p>
+<!-- ADMIN -->
+<div class="container hidden" id="adminBox">
+  <h2>Panel Administrador</h2>
+
+  <h3>Crear empresa</h3>
+  <input id="newEmpresa" placeholder="Usuario empresa">
+  <input id="newPass" placeholder="Contraseña empresa">
+  <button class="green" onclick="crearEmpresa()">Crear empresa</button>
+
+  <h3>Archivos cargados</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Empresa</th>
+        <th>Archivo</th>
+        <th>Tipo</th>
+        <th>Tamaño (MB)</th>
+        <th>Vista</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaAdmin"></tbody>
+  </table>
+
+  <button class="red" onclick="resetTodo()">RESET TOTAL</button>
+  <button onclick="logout()">Salir</button>
 </div>
 
-<div class="card hidden" id="panelEmpresa">
-    <div class="header-panel">
-        <h2 style="margin:0; color: var(--primary);">Panel Empresa35</h2>
-        <button onclick="logout()" style="width:auto; background:var(--danger)">Salir</button>
-    </div>
-    
-    <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <h4>Cargar Nuevo Archivo</h4>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="folderSelect" style="flex: 1;">
-                <option value="imag">Carpeta: imag/</option>
-                <option value="read">Carpeta: read/</option>
-            </select>
-            <input type="file" id="fileInput" accept="image/*">
-            <button onclick="uploadFile()" style="flex: 1; background: var(--success);">SUBIR</button>
-        </div>
-    </div>
+<!-- EMPRESA -->
+<div class="container hidden" id="empresaBox">
+  <h2 id="empresaTitulo"></h2>
 
-    <h3>Mis Archivos</h3>
-    <div class="grid-archivos" id="empresaGrid"></div>
+  <input type="file" id="file" multiple>
+  <button class="green" onclick="subir()">Subir archivos</button>
+
+  <p><b>Uso de espacio (máx 1 GB)</b></p>
+  <div class="progress"><div id="barra"></div></div>
+  <p id="usoTexto"></p>
+
+  <h3>Mis archivos</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Archivo</th>
+        <th>Tipo</th>
+        <th>Tamaño (MB)</th>
+        <th>Vista</th>
+      </tr>
+    </thead>
+    <tbody id="tablaEmpresa"></tbody>
+  </table>
+
+  <button onclick="logout()">Salir</button>
 </div>
 
-<div class="card hidden" id="panelAdmin">
-    <div class="header-panel">
-        <h2 style="margin:0; color: var(--primary);">Control Admin</h2>
-        <button onclick="logout()" style="width:auto; background:var(--danger)">Salir</button>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <strong>Ver Carpeta:</strong>
-        <button onclick="renderFiles('admin', 'all')" style="width:auto; padding:5px 15px;">Todos</button>
-        <button onclick="renderFiles('admin', 'imag')" style="width:auto; padding:5px 15px; background:var(--secondary)">imag/</button>
-        <button onclick="renderFiles('admin', 'read')" style="width:auto; padding:5px 15px; background:var(--secondary)">read/</button>
-    </div>
-
-    <div class="grid-archivos" id="adminGrid"></div>
+<!-- VISOR -->
+<div id="visor"
+     style="display:none;
+     position:fixed;
+     inset:0;
+     background:rgba(0,0,0,.85);
+     z-index:9999;
+     justify-content:center;
+     align-items:center;"
+     onclick="cerrarVisor()">
+  <img id="visorImg"
+       style="max-width:90%;
+       max-height:90%;
+       border-radius:10px;
+       box-shadow:0 0 25px #000">
 </div>
 
 <script>
-    const CREDENCIALES = {
-        empresa: { u: "empresa35", p: "flac" },
-        admin: { u: "admin", p: "colgate" }
-    };
+const LIMITE = 1024 * 1024 * 1024;
+let usuarioActual = null;
 
-    function login() {
-        const u = document.getElementById('userInput').value;
-        const p = document.getElementById('passInput').value;
-        const r = document.getElementById('roleInput').value;
+const getEmpresas = () => JSON.parse(localStorage.getItem("empresas") || "{}");
+const saveEmpresas = d => localStorage.setItem("empresas", JSON.stringify(d));
+const getArchivos = () => JSON.parse(localStorage.getItem("archivos") || "{}");
+const saveArchivos = d => localStorage.setItem("archivos", JSON.stringify(d));
 
-        if (u === CREDENCIALES[r].u && p === CREDENCIALES[r].p) {
-            document.getElementById('loginSection').classList.add('hidden');
-            if (r === 'empresa') {
-                document.getElementById('panelEmpresa').classList.remove('hidden');
-                renderFiles('empresa');
-            } else {
-                document.getElementById('panelAdmin').classList.remove('hidden');
-                renderFiles('admin');
-            }
-        } else {
-            document.getElementById('errorMsg').textContent = "Acceso denegado.";
-        }
+// Base64
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = e => reject(e);
+    reader.readAsDataURL(file);
+  });
+}
+
+// LOGIN
+function login(){
+  const t = tipo.value;
+  const u = user.value.trim();
+  const p = pass.value.trim();
+
+  if(t === "admin"){
+    if(u === "admin" && p === "colgate"){
+      loginBox.classList.add("hidden");
+      adminBox.classList.remove("hidden");
+      renderAdmin();
+    } else alert("Credenciales incorrectas");
+  } else {
+    const e = getEmpresas();
+    if(e[u] && e[u].pass === p){
+      usuarioActual = u;
+      loginBox.classList.add("hidden");
+      empresaBox.classList.remove("hidden");
+      empresaTitulo.innerText = "Empresa: " + u;
+      renderEmpresa();
+    } else alert("Credenciales incorrectas");
+  }
+}
+
+function logout(){ location.reload(); }
+
+// ADMIN
+function crearEmpresa(){
+  const u = newEmpresa.value.trim();
+  const p = newPass.value.trim();
+  if(!u || !p) return alert("Datos incompletos");
+  const e = getEmpresas();
+  e[u] = { pass:p };
+  saveEmpresas(e);
+  alert("Empresa creada");
+  newEmpresa.value = newPass.value = "";
+}
+
+function borrarArchivo(emp, index){
+  if(!confirm("¿Eliminar archivo?")) return;
+  const a = getArchivos();
+  a[emp].splice(index,1);
+  saveArchivos(a);
+  renderAdmin();
+}
+
+function renderAdmin(){
+  const a = getArchivos();
+  tablaAdmin.innerHTML = "";
+
+  for(let emp in a){
+    a[emp].forEach((f,i)=>{
+      let vista = f.preview
+        ? `<img src="${f.preview}" class="preview"
+             onclick="verImagen('${f.preview}')" style="cursor:pointer">`
+        : "—";
+
+      tablaAdmin.innerHTML += `
+      <tr>
+        <td>${emp}</td>
+        <td>${f.name}</td>
+        <td>${f.type}</td>
+        <td>${(f.size/1024/1024).toFixed(2)}</td>
+        <td>${vista}</td>
+        <td>
+          <button class="red small-btn"
+            onclick="borrarArchivo('${emp}',${i})">🗑</button>
+        </td>
+      </tr>`;
+    });
+  }
+}
+
+// EMPRESA
+async function subir(){
+  const files = file.files;
+  if(!files.length) return;
+
+  const a = getArchivos();
+  if(!a[usuarioActual]) a[usuarioActual] = [];
+
+  let usado = a[usuarioActual].reduce((s,f)=>s+f.size,0);
+
+  for(let f of files){
+    if(usado + f.size > LIMITE){
+      alert("Límite de 1 GB alcanzado");
+      break;
     }
 
-    function uploadFile() {
-        const input = document.getElementById('fileInput');
-        const folder = document.getElementById('folderSelect').value;
-        if (!input.files[0]) return alert("Selecciona un archivo");
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const db = JSON.parse(localStorage.getItem('TuControlRamos_DATA') || '[]');
-            db.push({
-                id: Date.now(),
-                name: input.files[0].name,
-                folder: folder,
-                data: e.target.result,
-                isImg: input.files[0].type.startsWith('image')
-            });
-            localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-            input.value = '';
-            renderFiles('empresa');
-        };
-        reader.readAsDataURL(input.files[0]);
+    let preview = null;
+    if(f.type.startsWith("image/")){
+      preview = await fileToBase64(f);
     }
 
-    // FUNCIÓN PARA VER IMAGEN EN GRANDE
-    function openImage(src) {
-        document.getElementById('imgFull').src = src;
-        document.getElementById('modalViewer').style.display = 'flex';
-    }
+    a[usuarioActual].push({
+      name: f.name,
+      type: f.type,
+      size: f.size,
+      preview: preview
+    });
 
-    function renderFiles(role, filter = 'all') {
-        const grid = document.getElementById(role === 'empresa' ? 'empresaGrid' : 'adminGrid');
-        let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA') || '[]');
-        
-        if (filter !== 'all') db = db.filter(f => f.folder === filter);
-        grid.innerHTML = db.length === 0 ? '<p>No hay archivos.</p>' : '';
+    usado += f.size;
+  }
 
-        db.forEach(file => {
-            const preview = file.isImg ? file.data : 'https://cdn-icons-png.flaticon.com/512/124/124837.png';
-            
-            let html = `
-                <div class="file-card">
-                    <img src="${preview}" class="preview-img" onclick="openImage('${file.data}')" title="Ampliar imagen">
-                    <div class="file-name">${file.name}</div>
-                    <span class="badge">/${file.folder}</span>`;
-            
-            if (role === 'admin') {
-                html += `
-                    <div class="controls">
-                        <button class="btn-small btn-rename" onclick="renameF(${file.id})">Nom</button>
-                        <button class="btn-small btn-move" onclick="moveF(${file.id})">Mov</button>
-                        <button class="btn-small btn-del" onclick="deleteF(${file.id})">X</button>
-                    </div>`;
-            }
-            html += `</div>`;
-            grid.innerHTML += html;
-        });
-    }
+  saveArchivos(a);
+  renderEmpresa();
+}
 
-    function deleteF(id) {
-        if (confirm("¿Eliminar?")) {
-            let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA'));
-            db = db.filter(f => f.id !== id);
-            localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-            renderFiles('admin');
-        }
-    }
+function renderEmpresa(){
+  const a = getArchivos()[usuarioActual] || [];
+  tablaEmpresa.innerHTML = "";
+  let total = 0;
 
-    function moveF(id) {
-        let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA'));
-        const f = db.find(x => x.id === id);
-        f.folder = f.folder === 'imag' ? 'read' : 'imag';
-        localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-        renderFiles('admin');
-    }
+  a.forEach(f=>{
+    total += f.size;
+    let vista = f.preview
+      ? `<img src="${f.preview}" class="preview"
+           onclick="verImagen('${f.preview}')" style="cursor:pointer">`
+      : "—";
 
-    function renameF(id) {
-        let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA'));
-        const f = db.find(x => x.id === id);
-        const nuevo = prompt("Nuevo nombre:", f.name);
-        if (nuevo) {
-            f.name = nuevo;
-            localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-            renderFiles('admin');
-        }
-    }
+    tablaEmpresa.innerHTML += `
+    <tr>
+      <td>${f.name}</td>
+      <td>${f.type}</td>
+      <td>${(f.size/1024/1024).toFixed(2)}</td>
+      <td>${vista}</td>
+    </tr>`;
+  });
 
-    function logout() { location.reload(); }
+  const p = (total / LIMITE) * 100;
+  barra.style.width = p + "%";
+  barra.style.background = p>90 ? "red" : p>70 ? "orange" : "green";
+  usoTexto.innerText =
+    (total/1024/1024).toFixed(2) + " MB usados de 1024 MB";
+}
+
+// VISOR
+function verImagen(src){
+  visorImg.src = src;
+  visor.style.display = "flex";
+}
+function cerrarVisor(){
+  visor.style.display = "none";
+  visorImg.src = "";
+}
+
+// RESET
+function resetTodo(){
+  if(confirm("¿Borrar TODO el sistema?")){
+    localStorage.clear();
+    location.reload();
+  }
+}
 </script>
 
 </body>
 </html>
+
