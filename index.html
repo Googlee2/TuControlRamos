@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TuControlRamos - Gestor Optimizado</title>
+    <title>TuControlRamos - Gestión Multi-Rol</title>
     <style>
         :root {
             --primary: #1e3a8a;
             --secondary: #3b82f6;
+            --admin-color: #6d28d9;
             --success: #10b981;
             --danger: #ef4444;
             --bg: #f3f4f6;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, system-ui, sans-serif;
             background: #e5e7eb;
             margin: 0; padding: 10px;
             display: flex; justify-content: center;
@@ -22,37 +23,37 @@
         }
 
         .card {
-            background: white; padding: 20px; border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: white; padding: 20px; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%; max-width: 500px; margin: auto;
         }
 
         .hidden { display: none !important; }
 
-        /* Login */
-        .login-box { text-align: center; }
+        /* Badge de Rol */
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .role-admin { background: #ede9fe; color: var(--admin-color); }
+        .role-empresa { background: #dcfce7; color: #166534; }
+
+        /* Formularios */
         input, select, button {
             width: 100%; padding: 12px; margin: 8px 0;
-            border-radius: 10px; border: 1px solid #ccc; font-size: 16px;
+            border-radius: 12px; border: 1px solid #d1d5db; font-size: 16px;
         }
         button { background: var(--primary); color: white; font-weight: bold; border: none; cursor: pointer; }
 
-        /* Paneles */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        
         /* Galería */
-        .grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px;
-        }
-
-        .item {
-            background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 5px; text-align: center;
-        }
-
-        .item img {
-            width: 100%; height: 120px; object-fit: cover; border-radius: 8px; cursor: pointer;
-        }
-
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .item { background: #fff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 8px; text-align: center; }
+        .item img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; cursor: pointer; }
         .item-name { font-size: 11px; font-weight: bold; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Visor Full */
@@ -61,11 +62,7 @@
             background: rgba(0,0,0,0.9); display: none;
             justify-content: center; align-items: center; z-index: 999;
         }
-        #visor img { max-width: 95%; max-height: 80%; border-radius: 10px; }
-
-        /* Admin Table */
-        .admin-table { width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 15px; }
-        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
+        #visor img { max-width: 95%; max-height: 85%; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -74,53 +71,59 @@
     <img id="imgFull" src="">
 </div>
 
-<div class="card login-box" id="login">
-    <h2 style="color:var(--primary)">TuControlRamos</h2>
-    <input type="text" id="u" placeholder="Usuario">
+<div class="card" id="loginBox" style="text-align:center;">
+    <h2 style="color:var(--primary); margin-bottom:5px;">TuControlRamos</h2>
+    <p style="font-size:0.8rem; color:#6b7280; margin-bottom:20px;">Acceso al Sistema</p>
+    <input type="text" id="u" placeholder="Nombre de usuario">
     <input type="password" id="p" placeholder="Contraseña">
-    <button onclick="acceder()">ENTRAR</button>
+    <button onclick="acceder()">INGRESAR</button>
     <p id="err" style="color:red; font-size:12px;"></p>
 </div>
 
 <div class="card hidden" id="pEmpresa">
-    <div class="header">
-        <h3 id="nomEmp">Empresa</h3>
-        <button onclick="salir()" style="width:auto; background:var(--danger); padding:5px 10px;">X</button>
+    <div style="display:flex; justify-content:space-between; align-items:start;">
+        <div>
+            <span class="role-badge role-empresa">EMPRESA</span>
+            <h3 id="nomEmp" style="margin:0;">-</h3>
+        </div>
+        <button onclick="salir()" style="width:auto; background:var(--danger); padding:5px 12px;">Cerrar</button>
     </div>
     
-    <div style="background:#f9f9f9; padding:10px; border-radius:10px;">
+    <div style="background:#f9fafb; padding:15px; border-radius:15px; margin-top:15px;">
+        <label style="font-size:0.8rem; font-weight:bold;">Subir a carpeta:</label>
         <select id="folder">
-            <option value="imag">Carpeta: imag/</option>
-            <option value="read">Carpeta: read/</option>
+            <option value="imag">imag/</option>
+            <option value="read">read/</option>
         </select>
         <input type="file" id="file" accept="image/*">
-        <button onclick="procesarSubida()" style="background:var(--success)">SUBIR FOTO</button>
-        <p id="status" style="font-size:10px; color:blue;"></p>
+        <button onclick="procesarSubida('empresa')" style="background:var(--success)">SUBIR IMAGEN</button>
+        <p id="status" style="font-size:10px; color:blue; text-align:center;"></p>
     </div>
 
-    <h4>Mis Archivos</h4>
+    <h4>Mis Archivos Cargados</h4>
     <div class="grid" id="gridEmp"></div>
 </div>
 
-<div class="card hidden" id="pAdmin" style="max-width: 700px;">
-    <div class="header">
-        <h3>Admin Maestro</h3>
-        <button onclick="salir()" style="width:auto; background:var(--danger); padding:5px 10px;">Salir</button>
+<div class="card hidden" id="pAdmin">
+    <div style="display:flex; justify-content:space-between; align-items:start;">
+        <div>
+            <span class="role-badge role-admin">ADMINISTRADOR</span>
+            <h3 style="margin:0;">Control Maestro</h3>
+        </div>
+        <button onclick="salir()" style="width:auto; background:var(--danger); padding:5px 12px;">Salir</button>
     </div>
 
-    <table class="admin-table">
-        <thead>
-            <tr><th>Rol</th><th>Usuario</th><th>Clave</th><th></th></tr>
-        </thead>
-        <tbody id="userTable"></tbody>
-    </table>
+    <div style="margin-top:20px; font-size:0.8rem; background:#fef2f2; padding:10px; border-radius:10px;">
+        <strong>Editar Accesos:</strong>
+        <div id="userFields" style="margin-top:5px;"></div>
+    </div>
 
-    <h4>Archivos Cargados</h4>
+    <h4>Archivos en el Sistema</h4>
     <div class="grid" id="gridAdm"></div>
 </div>
 
 <script>
-    // Config inicial
+    // Iniciar Credenciales
     if (!localStorage.getItem('TCR_C')) {
         localStorage.setItem('TCR_C', JSON.stringify({
             admin: { u: "admin", p: "colgate" },
@@ -128,31 +131,44 @@
         }));
     }
 
+    let usuarioActual = "";
+    let rolActual = "";
+
     function acceder() {
         const u = document.getElementById('u').value;
         const p = document.getElementById('p').value;
         const c = JSON.parse(localStorage.getItem('TCR_C'));
 
         if (u === c.admin.u && p === c.admin.p) {
-            document.getElementById('login').classList.add('hidden');
+            usuarioActual = u; rolActual = "admin";
+            document.getElementById('loginBox').classList.add('hidden');
             document.getElementById('pAdmin').classList.remove('hidden');
-            renderUsers();
+            renderAdminTools();
             renderFiles('admin');
         } else if (u === c.empresa.u && p === c.empresa.p) {
-            document.getElementById('login').classList.add('hidden');
+            usuarioActual = u; rolActual = "empresa";
+            document.getElementById('loginBox').classList.add('hidden');
             document.getElementById('pEmpresa').classList.remove('hidden');
             document.getElementById('nomEmp').textContent = u;
             renderFiles('empresa');
         } else {
-            document.getElementById('err').textContent = "Error de acceso";
+            document.getElementById('err').textContent = "Usuario o clave incorrectos";
         }
     }
 
-    function renderUsers() {
+    function renderAdminTools() {
         const c = JSON.parse(localStorage.getItem('TCR_C'));
-        document.getElementById('userTable').innerHTML = `
-            <tr><td>Admin</td><td><input id="au" value="${c.admin.u}"></td><td><input id="ap" value="${c.admin.p}"></td><td><button onclick="saveC('admin')">V</button></td></tr>
-            <tr><td>Empr</td><td><input id="eu" value="${c.empresa.u}"></td><td><input id="ep" value="${c.empresa.p}"></td><td><button onclick="saveC('empresa')">V</button></td></tr>
+        document.getElementById('userFields').innerHTML = `
+            <div style="margin-bottom:10px;">
+                Admin: <input id="au" value="${c.admin.u}" style="width:70px; padding:4px;"> 
+                Clave: <input id="ap" value="${c.admin.p}" style="width:70px; padding:4px;">
+                <button onclick="saveC('admin')" style="width:auto; padding:4px 8px; font-size:10px;">OK</button>
+            </div>
+            <div>
+                Empresa: <input id="eu" value="${c.empresa.u}" style="width:70px; padding:4px;"> 
+                Clave: <input id="ep" value="${c.empresa.p}" style="width:70px; padding:4px;">
+                <button onclick="saveC('empresa')" style="width:auto; padding:4px 8px; font-size:10px;">OK</button>
+            </div>
         `;
     }
 
@@ -161,52 +177,43 @@
         if(t === 'admin'){ c.admin.u = document.getElementById('au').value; c.admin.p = document.getElementById('ap').value; }
         else { c.empresa.u = document.getElementById('eu').value; c.empresa.p = document.getElementById('ep').value; }
         localStorage.setItem('TCR_C', JSON.stringify(c));
-        alert("Cambiado");
+        alert("Acceso actualizado");
     }
 
-    // COMPRESOR DE IMAGEN (Soluciona el problema de carga)
-    function procesarSubida() {
+    function procesarSubida(rol) {
         const file = document.getElementById('file').files[0];
-        const status = document.getElementById('status');
-        if(!file) return alert("Elige una imagen");
+        if(!file) return alert("Selecciona imagen");
 
-        status.textContent = "Procesando...";
+        document.getElementById('status').textContent = "Comprimiendo...";
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = (event) => {
+        reader.onload = (e) => {
             const img = new Image();
-            img.src = event.target.result;
+            img.src = e.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800; // Reducimos para que quepan muchas fotos
-                const scale = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH;
-                canvas.height = img.height * scale;
-
+                const MAX = 800;
+                const scale = MAX / img.width;
+                canvas.width = MAX; canvas.height = img.height * scale;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                // Comprimimos al 60% de calidad
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                 
-                guardarEnDB(file.name, dataUrl);
+                const db = JSON.parse(localStorage.getItem('TCR_F') || '[]');
+                db.push({
+                    id: Date.now(),
+                    n: file.name,
+                    f: document.getElementById('folder').value,
+                    d: canvas.toDataURL('image/jpeg', 0.6),
+                    owner: usuarioActual,
+                    role: rol
+                });
+                localStorage.setItem('TCR_F', JSON.stringify(db));
+                document.getElementById('status').textContent = "¡Subido!";
+                document.getElementById('file').value = "";
+                renderFiles(rol);
             };
         };
-    }
-
-    function guardarEnDB(nombre, data) {
-        const db = JSON.parse(localStorage.getItem('TCR_F') || '[]');
-        db.push({
-            id: Date.now(),
-            n: nombre,
-            f: document.getElementById('folder').value,
-            d: data
-        });
-        localStorage.setItem('TCR_F', JSON.stringify(db));
-        document.getElementById('status').textContent = "¡Cargado!";
-        document.getElementById('file').value = "";
-        renderFiles('empresa');
     }
 
     function renderFiles(role) {
@@ -217,21 +224,24 @@
         db.forEach(i => {
             const card = document.createElement('div');
             card.className = 'item';
+            const badgeClass = i.role === 'admin' ? 'role-admin' : 'role-empresa';
+            
             card.innerHTML = `
                 <img src="${i.d}" onclick="verFull('${i.d}')">
                 <div class="item-name">${i.n}</div>
                 <div style="font-size:9px; color:gray">/${i.f}</div>
+                <div class="role-badge ${badgeClass}" style="font-size:8px; margin-top:5px;">Por: ${i.owner}</div>
             `;
             if(role === 'admin') {
-                const btn = document.createElement('button');
-                btn.textContent = "Borrar";
-                btn.style = "background:red; font-size:10px; margin-top:5px; height:25px;";
-                btn.onclick = () => {
+                const b = document.createElement('button');
+                b.textContent = "Eliminar";
+                b.style = "background:red; font-size:9px; height:24px; margin-top:5px;";
+                b.onclick = () => {
                     let newDb = JSON.parse(localStorage.getItem('TCR_F')).filter(x => x.id !== i.id);
                     localStorage.setItem('TCR_F', JSON.stringify(newDb));
                     renderFiles('admin');
                 };
-                card.appendChild(btn);
+                card.appendChild(b);
             }
             g.appendChild(card);
         });
