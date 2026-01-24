@@ -3,339 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TuControlRamos - Mobile & Web</title>
+    <title>TuControlRamos - Gestor Optimizado</title>
     <style>
         :root {
             --primary: #1e3a8a;
             --secondary: #3b82f6;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #0f172a;
-            --light-bg: #f3f4f6;
+            --bg: #f3f4f6;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #e5e7eb;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+            margin: 0; padding: 10px;
+            display: flex; justify-content: center;
+            min-height: 100vh; box-sizing: border-box;
         }
 
-        /* Contenedor Adaptable */
         .card {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 850px;
-            margin: auto;
+            background: white; padding: 20px; border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%; max-width: 500px; margin: auto;
         }
 
         .hidden { display: none !important; }
 
-        /* Login Optimizado para Celular */
-        .login-box { max-width: 350px; text-align: center; }
-        
-        h2 { color: var(--primary); font-size: 1.5rem; margin-bottom: 20px; }
-
+        /* Login */
+        .login-box { text-align: center; }
         input, select, button {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border: 1px solid #d1d5db;
-            font-size: 16px; /* Evita zoom automático en iPhone */
-            box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 8px 0;
+            border-radius: 10px; border: 1px solid #ccc; font-size: 16px;
+        }
+        button { background: var(--primary); color: white; font-weight: bold; border: none; cursor: pointer; }
+
+        /* Paneles */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        /* Galería */
+        .grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px;
         }
 
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+        .item {
+            background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 5px; text-align: center;
         }
 
-        button:active { transform: scale(0.96); }
-
-        /* Estructura de Paneles */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #f3f4f6;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+        .item img {
+            width: 100%; height: 120px; object-fit: cover; border-radius: 8px; cursor: pointer;
         }
 
-        .header h2 { margin: 0; font-size: 1.2rem; }
+        .item-name { font-size: 11px; font-weight: bold; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Sección de Carga */
-        .upload-section {
-            background: var(--light-bg);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        /* Grilla de Archivos Adaptable */
-        .grid-archivos {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-        }
-
-        @media (max-width: 480px) {
-            .grid-archivos { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        .file-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 15px;
-            padding: 8px;
-            text-align: center;
-            position: relative;
-        }
-
-        .preview-img {
-            width: 100%;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 10px;
-            cursor: pointer;
-            background: #cbd5e1;
-        }
-
-        .file-name {
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-top: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Tabla de Usuarios (Scroll horizontal en celular) */
-        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; min-width: 400px; }
-        th, td { padding: 10px; border: 1px solid #e5e7eb; font-size: 0.85rem; }
-
-        /* Visor de Imagen Full */
-        #modalViewer {
+        /* Visor Full */
+        #visor {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.9); display: none;
-            justify-content: center; align-items: center; z-index: 9999;
+            justify-content: center; align-items: center; z-index: 999;
         }
-        #modalViewer img { max-width: 95%; max-height: 90%; border-radius: 8px; }
+        #visor img { max-width: 95%; max-height: 80%; border-radius: 10px; }
 
-        .btn-small { padding: 6px; font-size: 0.7rem; width: auto; margin: 2px; }
+        /* Admin Table */
+        .admin-table { width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 15px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; }
     </style>
 </head>
 <body>
 
-<div id="modalViewer" onclick="this.style.display='none'">
+<div id="visor" onclick="this.style.display='none'">
     <img id="imgFull" src="">
 </div>
 
-<div class="card login-box" id="loginSection">
-    <h2>TuControlRamos</h2>
-    <input type="text" id="userInput" placeholder="Usuario">
-    <input type="password" id="passInput" placeholder="Contraseña">
-    <button onclick="login()">INGRESAR</button>
-    <p id="errorMsg" style="color:var(--danger); font-size:0.8rem;"></p>
+<div class="card login-box" id="login">
+    <h2 style="color:var(--primary)">TuControlRamos</h2>
+    <input type="text" id="u" placeholder="Usuario">
+    <input type="password" id="p" placeholder="Contraseña">
+    <button onclick="acceder()">ENTRAR</button>
+    <p id="err" style="color:red; font-size:12px;"></p>
 </div>
 
-<div class="card hidden" id="panelEmpresa">
+<div class="card hidden" id="pEmpresa">
     <div class="header">
-        <h2 id="welcomeEmpresa">Mi Panel</h2>
-        <button onclick="logout()" class="btn-small" style="background:var(--danger)">Salir</button>
+        <h3 id="nomEmp">Empresa</h3>
+        <button onclick="salir()" style="width:auto; background:var(--danger); padding:5px 10px;">X</button>
     </div>
     
-    <div class="upload-section">
-        <strong>Subir Archivo</strong>
-        <select id="folderSelect">
+    <div style="background:#f9f9f9; padding:10px; border-radius:10px;">
+        <select id="folder">
             <option value="imag">Carpeta: imag/</option>
             <option value="read">Carpeta: read/</option>
         </select>
-        <input type="file" id="fileInput" accept="image/*">
-        <button onclick="upload()" style="background:var(--success)">CARGAR AHORA</button>
+        <input type="file" id="file" accept="image/*">
+        <button onclick="procesarSubida()" style="background:var(--success)">SUBIR FOTO</button>
+        <p id="status" style="font-size:10px; color:blue;"></p>
     </div>
 
-    <h3>Mis Imágenes/Docs</h3>
-    <div class="grid-archivos" id="empresaGrid"></div>
+    <h4>Mis Archivos</h4>
+    <div class="grid" id="gridEmp"></div>
 </div>
 
-<div class="card hidden" id="panelAdmin">
+<div class="card hidden" id="pAdmin" style="max-width: 700px;">
     <div class="header">
-        <h2>Panel Maestro</h2>
-        <button onclick="logout()" class="btn-small" style="background:var(--danger)">Salir</button>
+        <h3>Admin Maestro</h3>
+        <button onclick="salir()" style="width:auto; background:var(--danger); padding:5px 10px;">Salir</button>
     </div>
 
-    <div class="table-wrapper">
-        <h3 style="font-size: 1rem;">Gestión de Accesos</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Rol</th>
-                    <th>Usuario</th>
-                    <th>Clave</th>
-                    <th>Guardar</th>
-                </tr>
-            </thead>
-            <tbody id="userTableBody"></tbody>
-        </table>
-    </div>
+    <table class="admin-table">
+        <thead>
+            <tr><th>Rol</th><th>Usuario</th><th>Clave</th><th></th></tr>
+        </thead>
+        <tbody id="userTable"></tbody>
+    </table>
 
-    <h3>Archivos de Empresa</h3>
-    <div style="margin-bottom: 10px;">
-        <button onclick="renderFiles('admin','all')" class="btn-small">Todos</button>
-        <button onclick="renderFiles('admin','imag')" class="btn-small" style="background:var(--secondary)">imag/</button>
-        <button onclick="renderFiles('admin','read')" class="btn-small" style="background:var(--secondary)">read/</button>
-    </div>
-    <div class="grid-archivos" id="adminGrid"></div>
+    <h4>Archivos Cargados</h4>
+    <div class="grid" id="gridAdm"></div>
 </div>
 
 <script>
-    // Inicialización de credenciales
-    if (!localStorage.getItem('TCR_CRED')) {
-        localStorage.setItem('TCR_CRED', JSON.stringify({
+    // Config inicial
+    if (!localStorage.getItem('TCR_C')) {
+        localStorage.setItem('TCR_C', JSON.stringify({
             admin: { u: "admin", p: "colgate" },
             empresa: { u: "empresa35", p: "flac" }
         }));
     }
 
-    function login() {
-        const u = document.getElementById('userInput').value;
-        const p = document.getElementById('passInput').value;
-        const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
+    function acceder() {
+        const u = document.getElementById('u').value;
+        const p = document.getElementById('p').value;
+        const c = JSON.parse(localStorage.getItem('TCR_C'));
 
-        if (u === creds.admin.u && p === creds.admin.p) {
-            showPanel('panelAdmin');
-            renderAdminUsers();
+        if (u === c.admin.u && p === c.admin.p) {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('pAdmin').classList.remove('hidden');
+            renderUsers();
             renderFiles('admin');
-        } else if (u === creds.empresa.u && p === creds.empresa.p) {
-            document.getElementById('welcomeEmpresa').textContent = u;
-            showPanel('panelEmpresa');
+        } else if (u === c.empresa.u && p === c.empresa.p) {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('pEmpresa').classList.remove('hidden');
+            document.getElementById('nomEmp').textContent = u;
             renderFiles('empresa');
         } else {
-            document.getElementById('errorMsg').textContent = "Usuario o clave incorrectos.";
+            document.getElementById('err').textContent = "Error de acceso";
         }
     }
 
-    function showPanel(id) {
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById(id).classList.remove('hidden');
-    }
-
-    function renderAdminUsers() {
-        const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
-        document.getElementById('userTableBody').innerHTML = `
-            <tr>
-                <td>Admin</td>
-                <td><input type="text" id="editUAdmin" value="${creds.admin.u}" style="padding:5px"></td>
-                <td><input type="text" id="editPAdmin" value="${creds.admin.p}" style="padding:5px"></td>
-                <td><button onclick="saveCreds('admin')" class="btn-small" style="background:var(--success)">OK</button></td>
-            </tr>
-            <tr>
-                <td>Empresa</td>
-                <td><input type="text" id="editUEmpresa" value="${creds.empresa.u}" style="padding:5px"></td>
-                <td><input type="text" id="editPEmpresa" value="${creds.empresa.p}" style="padding:5px"></td>
-                <td><button onclick="saveCreds('empresa')" class="btn-small" style="background:var(--success)">OK</button></td>
-            </tr>
+    function renderUsers() {
+        const c = JSON.parse(localStorage.getItem('TCR_C'));
+        document.getElementById('userTable').innerHTML = `
+            <tr><td>Admin</td><td><input id="au" value="${c.admin.u}"></td><td><input id="ap" value="${c.admin.p}"></td><td><button onclick="saveC('admin')">V</button></td></tr>
+            <tr><td>Empr</td><td><input id="eu" value="${c.empresa.u}"></td><td><input id="ep" value="${c.empresa.p}"></td><td><button onclick="saveC('empresa')">V</button></td></tr>
         `;
     }
 
-    function saveCreds(type) {
-        const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
-        if(type === 'admin') {
-            creds.admin.u = document.getElementById('editUAdmin').value;
-            creds.admin.p = document.getElementById('editPAdmin').value;
-        } else {
-            creds.empresa.u = document.getElementById('editUEmpresa').value;
-            creds.empresa.p = document.getElementById('editPEmpresa').value;
-        }
-        localStorage.setItem('TCR_CRED', JSON.stringify(creds));
-        alert("Actualizado.");
+    function saveC(t) {
+        const c = JSON.parse(localStorage.getItem('TCR_C'));
+        if(t === 'admin'){ c.admin.u = document.getElementById('au').value; c.admin.p = document.getElementById('ap').value; }
+        else { c.empresa.u = document.getElementById('eu').value; c.empresa.p = document.getElementById('ep').value; }
+        localStorage.setItem('TCR_C', JSON.stringify(c));
+        alert("Cambiado");
     }
 
-    function upload() {
-        const input = document.getElementById('fileInput');
-        if(!input.files[0]) return alert("Selecciona una foto");
+    // COMPRESOR DE IMAGEN (Soluciona el problema de carga)
+    function procesarSubida() {
+        const file = document.getElementById('file').files[0];
+        const status = document.getElementById('status');
+        if(!file) return alert("Elige una imagen");
+
+        status.textContent = "Procesando...";
 
         const reader = new FileReader();
-        reader.onload = function(e) {
-            const db = JSON.parse(localStorage.getItem('TCR_FILES') || '[]');
-            // Límite de seguridad: si hay muchas fotos, borra la más vieja para que GitHub no se bloquee
-            if(db.length > 15) db.shift(); 
-            
-            db.push({
-                id: Date.now(),
-                name: input.files[0].name,
-                folder: document.getElementById('folderSelect').value,
-                data: e.target.result,
-                isImg: input.files[0].type.startsWith('image')
-            });
-            localStorage.setItem('TCR_FILES', JSON.stringify(db));
-            renderFiles('empresa');
-            input.value = '';
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800; // Reducimos para que quepan muchas fotos
+                const scale = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scale;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Comprimimos al 60% de calidad
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                
+                guardarEnDB(file.name, dataUrl);
+            };
         };
-        reader.readAsDataURL(input.files[0]);
     }
 
-    function renderFiles(role, filter = 'all') {
-        const grid = document.getElementById(role === 'empresa' ? 'empresaGrid' : 'adminGrid');
-        let db = JSON.parse(localStorage.getItem('TCR_FILES') || '[]');
-        if(filter !== 'all') db = db.filter(f => f.folder === filter);
-        
-        grid.innerHTML = db.length === 0 ? '<p style="font-size:0.8rem">Sin archivos.</p>' : '';
+    function guardarEnDB(nombre, data) {
+        const db = JSON.parse(localStorage.getItem('TCR_F') || '[]');
+        db.push({
+            id: Date.now(),
+            n: nombre,
+            f: document.getElementById('folder').value,
+            d: data
+        });
+        localStorage.setItem('TCR_F', JSON.stringify(db));
+        document.getElementById('status').textContent = "¡Cargado!";
+        document.getElementById('file').value = "";
+        renderFiles('empresa');
+    }
 
-        db.forEach(file => {
-            const thumb = file.isImg ? file.data : 'https://cdn-icons-png.flaticon.com/512/124/124837.png';
-            let html = `
-                <div class="file-card">
-                    <img src="${thumb}" class="preview-img" onclick="openFull('${file.data}')">
-                    <div class="file-name">${file.name}</div>
-                    <span style="font-size:10px; color:gray">/${file.folder}</span>`;
+    function renderFiles(role) {
+        const g = document.getElementById(role === 'empresa' ? 'gridEmp' : 'gridAdm');
+        const db = JSON.parse(localStorage.getItem('TCR_F') || '[]');
+        g.innerHTML = '';
+
+        db.forEach(i => {
+            const card = document.createElement('div');
+            card.className = 'item';
+            card.innerHTML = `
+                <img src="${i.d}" onclick="verFull('${i.d}')">
+                <div class="item-name">${i.n}</div>
+                <div style="font-size:9px; color:gray">/${i.f}</div>
+            `;
             if(role === 'admin') {
-                html += `<div style="margin-top:5px">
-                    <button onclick="moveF(${file.id})" class="btn-small" style="background:var(--secondary)">Mover</button>
-                    <button onclick="delF(${file.id})" class="btn-small" style="background:var(--danger)">X</button>
-                </div>`;
+                const btn = document.createElement('button');
+                btn.textContent = "Borrar";
+                btn.style = "background:red; font-size:10px; margin-top:5px; height:25px;";
+                btn.onclick = () => {
+                    let newDb = JSON.parse(localStorage.getItem('TCR_F')).filter(x => x.id !== i.id);
+                    localStorage.setItem('TCR_F', JSON.stringify(newDb));
+                    renderFiles('admin');
+                };
+                card.appendChild(btn);
             }
-            html += `</div>`;
-            grid.innerHTML += html;
+            g.appendChild(card);
         });
     }
 
-    function delF(id) {
-        let db = JSON.parse(localStorage.getItem('TCR_FILES')).filter(f => f.id !== id);
-        localStorage.setItem('TCR_FILES', JSON.stringify(db));
-        renderFiles('admin');
-    }
-
-    function moveF(id) {
-        let db = JSON.parse(localStorage.getItem('TCR_FILES'));
-        let f = db.find(x => x.id === id);
-        f.folder = f.folder === 'imag' ? 'read' : 'imag';
-        localStorage.setItem('TCR_FILES', JSON.stringify(db));
-        renderFiles('admin');
-    }
-
-    function openFull(src) {
-        if(!src.startsWith('data:image')) return alert("No es una imagen");
+    function verFull(src) {
         document.getElementById('imgFull').src = src;
-        document.getElementById('modalViewer').style.display = 'flex';
+        document.getElementById('visor').style.display = 'flex';
     }
 
-    function logout() { location.reload(); }
+    function salir() { location.reload(); }
 </script>
 </body>
 </html>
