@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuControlRamos - Gestión de Archivos</title>
+    <title>TuControlRamos - Control Total</title>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -11,26 +11,21 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --bg: #f1f5f9;
+            --dark: #0f172a;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
             background: #e2e8f0;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             min-height: 100vh;
         }
 
         .card {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
+            background: white; padding: 25px; border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 95%;
-            max-width: 900px;
+            width: 95%; max-width: 900px;
         }
 
         .hidden { display: none !important; }
@@ -41,53 +36,38 @@
             width: 100%; padding: 12px; margin: 8px 0;
             border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box;
         }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { opacity: 0.9; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
 
-        /* Galería */
-        .grid-archivos {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px; margin-top: 20px;
-        }
-
-        .file-card {
-            border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 10px; text-align: center; background: #fff;
-        }
-
-        .preview-img {
-            width: 100%; height: 100px; object-fit: cover;
-            border-radius: 8px; background: #f8fafc; margin-bottom: 8px;
-            cursor: zoom-in;
-        }
-
-        .file-name { font-size: 0.8rem; font-weight: bold; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #dbeafe; color: #1e40af; }
-
-        /* Controles Admin */
-        .controls { display: flex; gap: 4px; margin-top: 8px; }
-        .btn-small { padding: 5px; font-size: 0.7rem; flex: 1; }
-        .btn-move { background: var(--secondary); }
-        .btn-rename { background: var(--warning); }
-        .btn-del { background: var(--danger); }
+        /* Estilos de Paneles */
+        .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
         
-        .header-panel { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .grid-archivos {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px; margin-top: 15px;
+        }
 
-        /* MODAL PARA VER IMAGEN */
+        .file-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center; }
+        .preview-img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+
+        /* Gestión de Usuarios Table */
+        .user-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .user-table th, .user-table td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+        .user-table th { background: #f8fafc; }
+
+        .btn-small { padding: 5px 10px; font-size: 0.75rem; width: auto; margin: 2px; }
+
+        /* Modal Viewer */
         #modalViewer {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); display: none;
+            background: rgba(0,0,0,0.85); display: none;
             justify-content: center; align-items: center; z-index: 1000;
         }
-        #modalViewer img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        #modalViewer .close-btn { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
+        #modalViewer img { max-width: 90%; max-height: 85%; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div id="modalViewer" onclick="this.style.display='none'">
-    <span class="close-btn">&times;</span>
     <img id="imgFull" src="">
 </div>
 
@@ -95,164 +75,186 @@
     <h2 style="color: var(--primary);">TuControlRamos</h2>
     <input type="text" id="userInput" placeholder="Usuario">
     <input type="password" id="passInput" placeholder="Contraseña">
-    <select id="roleInput">
-        <option value="empresa">Empresa</option>
-        <option value="admin">Administrador</option>
-    </select>
-    <button onclick="login()">INGRESAR</button>
+    <button onclick="login()">INGRESAR AL PANEL</button>
     <p id="errorMsg" style="color:red; font-size:0.8rem;"></p>
 </div>
 
 <div class="card hidden" id="panelEmpresa">
     <div class="header-panel">
-        <h2 style="margin:0; color: var(--primary);">Panel Empresa35</h2>
-        <button onclick="logout()" style="width:auto; background:var(--danger)">Salir</button>
+        <h2 id="welcomeEmpresa">Panel Empresa</h2>
+        <button onclick="logout()" style="width:auto; background:var(--danger)">Cerrar Sesión</button>
     </div>
-    
     <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <h4>Cargar Nuevo Archivo</h4>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="folderSelect" style="flex: 1;">
-                <option value="imag">Carpeta: imag/</option>
-                <option value="read">Carpeta: read/</option>
+        <strong>Cargar en TuControlRamos/</strong>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <select id="folderSelect" style="flex:1">
+                <option value="imag">imag/</option>
+                <option value="read">read/</option>
             </select>
-            <input type="file" id="fileInput" accept="image/*">
-            <button onclick="uploadFile()" style="flex: 1; background: var(--success);">SUBIR</button>
+            <input type="file" id="fileInput" style="flex:2">
+            <button onclick="upload()" style="flex:1; background:var(--success)">SUBIR</button>
         </div>
     </div>
-
     <h3>Mis Archivos</h3>
     <div class="grid-archivos" id="empresaGrid"></div>
 </div>
 
 <div class="card hidden" id="panelAdmin">
     <div class="header-panel">
-        <h2 style="margin:0; color: var(--primary);">Control Admin</h2>
+        <h2 style="color:var(--primary)">Control Maestro - Admin</h2>
         <button onclick="logout()" style="width:auto; background:var(--danger)">Salir</button>
     </div>
 
-    <div style="margin-bottom: 15px;">
-        <strong>Ver Carpeta:</strong>
-        <button onclick="renderFiles('admin', 'all')" style="width:auto; padding:5px 15px;">Todos</button>
-        <button onclick="renderFiles('admin', 'imag')" style="width:auto; padding:5px 15px; background:var(--secondary)">imag/</button>
-        <button onclick="renderFiles('admin', 'read')" style="width:auto; padding:5px 15px; background:var(--secondary)">read/</button>
+    <div style="background:#fff7ed; padding:15px; border-radius:10px; border:1px solid #ffedd5; margin-bottom:20px;">
+        <h3 style="margin-top:0; color:#9a3412">Gestión de Usuarios y Accesos</h3>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Contraseña</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+        </table>
     </div>
 
+    <h3>Gestión de Archivos (Empresa)</h3>
+    <div style="margin-bottom:10px;">
+        <button onclick="renderFiles('admin','all')" class="btn-small">Todos</button>
+        <button onclick="renderFiles('admin','imag')" class="btn-small" style="background:var(--secondary)">imag/</button>
+        <button onclick="renderFiles('admin','read')" class="btn-small" style="background:var(--secondary)">read/</button>
+    </div>
     <div class="grid-archivos" id="adminGrid"></div>
 </div>
 
 <script>
-    const CREDENCIALES = {
-        empresa: { u: "empresa35", p: "flac" },
-        admin: { u: "admin", p: "colgate" }
-    };
+    // Inicializar credenciales en LocalStorage si no existen
+    if (!localStorage.getItem('TCR_CRED')) {
+        const creds = {
+            admin: { u: "admin", p: "colgate" },
+            empresa: { u: "empresa35", p: "flac" }
+        };
+        localStorage.setItem('TCR_CRED', JSON.stringify(creds));
+    }
 
     function login() {
         const u = document.getElementById('userInput').value;
         const p = document.getElementById('passInput').value;
-        const r = document.getElementById('roleInput').value;
+        const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
 
-        if (u === CREDENCIALES[r].u && p === CREDENCIALES[r].p) {
-            document.getElementById('loginSection').classList.add('hidden');
-            if (r === 'empresa') {
-                document.getElementById('panelEmpresa').classList.remove('hidden');
-                renderFiles('empresa');
-            } else {
-                document.getElementById('panelAdmin').classList.remove('hidden');
-                renderFiles('admin');
-            }
+        if (u === creds.admin.u && p === creds.admin.p) {
+            showPanel('panelAdmin');
+            renderAdminUsers();
+            renderFiles('admin');
+        } else if (u === creds.empresa.u && p === creds.empresa.p) {
+            document.getElementById('welcomeEmpresa').textContent = "Panel: " + u;
+            showPanel('panelEmpresa');
+            renderFiles('empresa');
         } else {
-            document.getElementById('errorMsg').textContent = "Acceso denegado.";
+            document.getElementById('errorMsg').textContent = "Usuario o clave incorrectos.";
         }
     }
 
-    function uploadFile() {
+    function showPanel(id) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    // GESTIÓN DE USUARIOS (Solo Admin)
+    function renderAdminUsers() {
+        const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
+        const container = document.getElementById('userTableBody');
+        container.innerHTML = `
+            <tr>
+                <td><strong>Administrador</strong></td>
+                <td><input type="text" id="editUAdmin" value="${creds.admin.u}"></td>
+                <td><input type="text" id="editPAdmin" value="${creds.admin.p}"></td>
+                <td><button onclick="saveCreds('admin')" class="btn-small" style="background:var(--success)">Guardar</button></td>
+            </tr>
+            <tr>
+                <td><strong>Empresa</strong></td>
+                <td><input type="text" id="editUEmpresa" value="${creds.empresa.u}"></td>
+                <td><input type="text" id="editPEmpresa" value="${creds.empresa.p}"></td>
+                <td><button onclick="saveCreds('empresa')" class="btn-small" style="background:var(--success)">Guardar</button></td>
+            </tr>
+        `;
+    }
+
+    function saveCreds(type) {
+        const creds = JSON.parse(localStorage.getItem('TCR_CRED'));
+        if(type === 'admin') {
+            creds.admin.u = document.getElementById('editUAdmin').value;
+            creds.admin.p = document.getElementById('editPAdmin').value;
+        } else {
+            creds.empresa.u = document.getElementById('editUEmpresa').value;
+            creds.empresa.p = document.getElementById('editPEmpresa').value;
+        }
+        localStorage.setItem('TCR_CRED', JSON.stringify(creds));
+        alert("Credenciales de " + type + " actualizadas con éxito.");
+    }
+
+    // GESTIÓN DE ARCHIVOS
+    function upload() {
         const input = document.getElementById('fileInput');
         const folder = document.getElementById('folderSelect').value;
-        if (!input.files[0]) return alert("Selecciona un archivo");
+        if(!input.files[0]) return alert("Selecciona archivo");
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const db = JSON.parse(localStorage.getItem('TuControlRamos_DATA') || '[]');
-            db.push({
-                id: Date.now(),
-                name: input.files[0].name,
-                folder: folder,
-                data: e.target.result,
-                isImg: input.files[0].type.startsWith('image')
-            });
-            localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-            input.value = '';
+            const db = JSON.parse(localStorage.getItem('TCR_FILES') || '[]');
+            db.push({ id: Date.now(), name: input.files[0].name, folder: folder, data: e.target.result, isImg: input.files[0].type.startsWith('image') });
+            localStorage.setItem('TCR_FILES', JSON.stringify(db));
             renderFiles('empresa');
+            input.value = '';
         };
         reader.readAsDataURL(input.files[0]);
     }
 
-    // FUNCIÓN PARA VER IMAGEN EN GRANDE
-    function openImage(src) {
-        document.getElementById('imgFull').src = src;
-        document.getElementById('modalViewer').style.display = 'flex';
-    }
-
     function renderFiles(role, filter = 'all') {
         const grid = document.getElementById(role === 'empresa' ? 'empresaGrid' : 'adminGrid');
-        let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA') || '[]');
-        
-        if (filter !== 'all') db = db.filter(f => f.folder === filter);
-        grid.innerHTML = db.length === 0 ? '<p>No hay archivos.</p>' : '';
+        let db = JSON.parse(localStorage.getItem('TCR_FILES') || '[]');
+        if(filter !== 'all') db = db.filter(f => f.folder === filter);
+        grid.innerHTML = db.length === 0 ? '<p>Vacío</p>' : '';
 
         db.forEach(file => {
-            const preview = file.isImg ? file.data : 'https://cdn-icons-png.flaticon.com/512/124/124837.png';
-            
-            let html = `
-                <div class="file-card">
-                    <img src="${preview}" class="preview-img" onclick="openImage('${file.data}')" title="Ampliar imagen">
-                    <div class="file-name">${file.name}</div>
-                    <span class="badge">/${file.folder}</span>`;
-            
-            if (role === 'admin') {
-                html += `
-                    <div class="controls">
-                        <button class="btn-small btn-rename" onclick="renameF(${file.id})">Nom</button>
-                        <button class="btn-small btn-move" onclick="moveF(${file.id})">Mov</button>
-                        <button class="btn-small btn-del" onclick="deleteF(${file.id})">X</button>
-                    </div>`;
+            const thumb = file.isImg ? file.data : 'https://cdn-icons-png.flaticon.com/512/124/124837.png';
+            let html = `<div class="file-card">
+                <img src="${thumb}" class="preview-img" onclick="openFull('${file.data}')">
+                <div style="font-size:0.7rem; font-weight:bold; margin-top:5px;">${file.name}</div>
+                <span style="font-size:0.6rem; background:#eee; padding:2px 5px;">/${file.folder}</span>`;
+            if(role === 'admin') {
+                html += `<div style="margin-top:5px;">
+                    <button onclick="moveF(${file.id})" class="btn-small" style="background:var(--secondary)">Mover</button>
+                    <button onclick="delF(${file.id})" class="btn-small" style="background:var(--danger)">X</button>
+                </div>`;
             }
             html += `</div>`;
             grid.innerHTML += html;
         });
     }
 
-    function deleteF(id) {
-        if (confirm("¿Eliminar?")) {
-            let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA'));
-            db = db.filter(f => f.id !== id);
-            localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-            renderFiles('admin');
-        }
-    }
-
-    function moveF(id) {
-        let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA'));
-        const f = db.find(x => x.id === id);
-        f.folder = f.folder === 'imag' ? 'read' : 'imag';
-        localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
+    function delF(id) {
+        let db = JSON.parse(localStorage.getItem('TCR_FILES')).filter(f => f.id !== id);
+        localStorage.setItem('TCR_FILES', JSON.stringify(db));
         renderFiles('admin');
     }
 
-    function renameF(id) {
-        let db = JSON.parse(localStorage.getItem('TuControlRamos_DATA'));
-        const f = db.find(x => x.id === id);
-        const nuevo = prompt("Nuevo nombre:", f.name);
-        if (nuevo) {
-            f.name = nuevo;
-            localStorage.setItem('TuControlRamos_DATA', JSON.stringify(db));
-            renderFiles('admin');
-        }
+    function moveF(id) {
+        let db = JSON.parse(localStorage.getItem('TCR_FILES'));
+        let f = db.find(x => x.id === id);
+        f.folder = f.folder === 'imag' ? 'read' : 'imag';
+        localStorage.setItem('TCR_FILES', JSON.stringify(db));
+        renderFiles('admin');
+    }
+
+    function openFull(src) {
+        document.getElementById('imgFull').src = src;
+        document.getElementById('modalViewer').style.display = 'flex';
     }
 
     function logout() { location.reload(); }
 </script>
-
 </body>
 </html>
