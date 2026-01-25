@@ -3,223 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <title>TuControlRamos</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
 body{font-family:Arial;background:#dff3ff;margin:0}
-.container{max-width:1200px;margin:30px auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.container{max-width:900px;margin:30px auto;background:#fff;padding:20px;border-radius:12px}
+input,button{width:100%;padding:10px;margin:5px 0}
+button{background:#2ecc71;color:#fff;border:none;border-radius:6px}
+img{max-width:120px;border-radius:6px}
 .hidden{display:none}
-input,select,button{width:100%;padding:10px;margin:6px 0}
-button{border:none;border-radius:6px;cursor:pointer}
-.green{background:#2ecc71;color:#fff}
-.red{background:#e74c3c;color:#fff}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-th,td{border:1px solid #ccc;padding:8px;text-align:center}
-img.preview{max-width:120px;max-height:90px;border-radius:6px;border:1px solid #ccc;cursor:pointer}
 </style>
 </head>
-
 <body>
 
-<!-- LOGIN -->
-<div class="container" id="loginBox">
-  <h2>Ingreso</h2>
-  <select id="tipo">
-    <option value="admin">Administrador</option>
-    <option value="empresa">Empresa</option>
-  </select>
-  <input id="user" placeholder="Usuario">
-  <input id="pass" type="password" placeholder="Contraseña">
-  <button class="green" onclick="login()">Ingresar</button>
+<div class="container" id="login">
+  <h2>Empresa</h2>
+  <input id="empresa" placeholder="Empresa">
+  <button onclick="entrar()">Entrar</button>
 </div>
 
-<!-- ADMIN -->
-<div class="container hidden" id="adminBox">
-  <h2>Panel Administrador</h2>
-
-  <h3>Crear empresa</h3>
-  <input id="newEmpresa" placeholder="Usuario empresa">
-  <input id="newPass" placeholder="Contraseña">
-  <button class="green" onclick="crearEmpresa()">Crear</button>
-
-  <h3>Archivos cargados</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Empresa</th>
-        <th>Archivo</th>
-        <th>Vista</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    <tbody id="tablaAdmin"></tbody>
-  </table>
-
-  <button onclick="logout()">Salir</button>
+<div class="container hidden" id="panel">
+  <h2 id="titulo"></h2>
+  <input type="file" id="archivo" accept="image/*">
+  <button onclick="subir()">Subir imagen</button>
+  <div id="lista"></div>
 </div>
 
-<!-- EMPRESA -->
-<div class="container hidden" id="empresaBox">
-  <h2 id="empresaTitulo"></h2>
-
-  <input type="file" id="file" accept="image/*">
-  <button class="green" onclick="subir()">Subir imagen</button>
-
-  <h3>Mis imágenes</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Archivo</th>
-        <th>Vista</th>
-      </tr>
-    </thead>
-    <tbody id="tablaEmpresa"></tbody>
-  </table>
-
-  <button onclick="logout()">Salir</button>
-</div>
-
-<!-- VISOR -->
-<div id="visor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);justify-content:center;align-items:center"
-onclick="this.style.display='none'">
-  <img id="visorImg" style="max-width:90%;max-height:90%">
-</div>
-
-<!-- FIREBASE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyClaqvS1LUSZtaeIgvNtKdBGVDi3fEii60",
   authDomain: "tucontrolramos-8ec4a.firebaseapp.com",
   projectId: "tucontrolramos-8ec4a",
-  storageBucket: "tucontrolramos-8ec4a.appspot.com",
-  messagingSenderId: "912354606273",
-  appId: "1:912354606273:web:c54b4dc67e2da1e9546840"
+  storageBucket: "tucontrolramos-8ec4a.appspot.com"
 };
 
-const app = initializeApp(firebaseConfig);
-window.db = getFirestore(app);
-window.storage = getStorage(app);
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
 
-window.collection = collection;
-window.addDoc = addDoc;
-window.getDocs = getDocs;
-window.query = query;
-window.where = where;
-window.deleteDoc = deleteDoc;
-window.doc = doc;
-window.ref = ref;
-window.uploadBytes = uploadBytes;
-window.getDownloadURL = getDownloadURL;
-window.deleteObject = deleteObject;
-</script>
+let empresaActual="";
 
-<script>
-let usuarioActual=null;
-
-/* LOGIN */
-async function login(){
-  const u=user.value.trim();
-  const p=pass.value.trim();
-  if(!u||!p) return alert("Datos incompletos");
-
-  if(tipo.value==="admin"){
-    if(u==="admin" && p==="colgate"){
-      loginBox.classList.add("hidden");
-      adminBox.classList.remove("hidden");
-      renderAdmin();
-    } else alert("Admin incorrecto");
-  } else {
-    const q=query(collection(db,"empresas"),where("user","==",u),where("pass","==",p));
-    const r=await getDocs(q);
-    if(r.empty) return alert("Empresa no válida");
-
-    usuarioActual=u;
-    loginBox.classList.add("hidden");
-    empresaBox.classList.remove("hidden");
-    empresaTitulo.innerText="Empresa: "+u;
-    renderEmpresa();
-  }
+function entrar(){
+  empresaActual = empresa.value.trim();
+  if(!empresaActual) return alert("Ingresá empresa");
+  login.classList.add("hidden");
+  panel.classList.remove("hidden");
+  titulo.innerText="Empresa: "+empresaActual;
+  cargar();
 }
 
-function logout(){location.reload()}
+function subir(){
+  const f = archivo.files[0];
+  if(!f) return alert("Elegí imagen");
 
-/* EMPRESAS */
-async function crearEmpresa(){
-  if(!newEmpresa.value||!newPass.value) return alert("Completar datos");
-  await addDoc(collection(db,"empresas"),{
-    user:newEmpresa.value,
-    pass:newPass.value
-  });
-  alert("Empresa creada");
-  newEmpresa.value="";
-  newPass.value="";
-}
-
-/* SUBIR IMAGEN */
-async function subir(){
-  const f=file.files[0];
-  if(!f) return alert("Seleccioná imagen");
-
-  const ruta=`imagenes/${usuarioActual}/${Date.now()}_${f.name}`;
-  const r=ref(storage,ruta);
-  await uploadBytes(r,f);
-  const url=await getDownloadURL(r);
-
-  await addDoc(collection(db,"archivos"),{
-    empresa:usuarioActual,
-    nombre:f.name,
-    url:url,
-    ruta:ruta
-  });
-
-  alert("Imagen subida ✔");
-  renderEmpresa();
-}
-
-/* RENDER EMPRESA */
-async function renderEmpresa(){
-  tablaEmpresa.innerHTML="";
-  const q=query(collection(db,"archivos"),where("empresa","==",usuarioActual));
-  const r=await getDocs(q);
-  r.forEach(d=>{
-    const f=d.data();
-    tablaEmpresa.innerHTML+=`
-    <tr>
-      <td>${f.nombre}</td>
-      <td><img src="${f.url}" class="preview" onclick="visorImg.src='${f.url}';visor.style.display='flex'"></td>
-    </tr>`;
+  const ref = storage.ref("imagenes/"+empresaActual+"/"+Date.now()+"_"+f.name);
+  ref.put(f).then(()=>{
+    ref.getDownloadURL().then(url=>{
+      db.collection("imagenes").add({
+        empresa:empresaActual,
+        url:url
+      }).then(cargar);
+    });
   });
 }
 
-/* RENDER ADMIN */
-async function renderAdmin(){
-  tablaAdmin.innerHTML="";
-  const r=await getDocs(collection(db,"archivos"));
-  r.forEach(d=>{
-    const f=d.data();
-    tablaAdmin.innerHTML+=`
-    <tr>
-      <td>${f.empresa}</td>
-      <td>${f.nombre}</td>
-      <td><img src="${f.url}" class="preview" onclick="visorImg.src='${f.url}';visor.style.display='flex'"></td>
-      <td><button class="red" onclick="borrar('${d.id}','${f.ruta}')">🗑</button></td>
-    </tr>`;
+function cargar(){
+  lista.innerHTML="";
+  db.collection("imagenes").where("empresa","==",empresaActual)
+  .get().then(s=>{
+    s.forEach(d=>{
+      lista.innerHTML+=`<img src="${d.data().url}"> `;
+    });
   });
-}
-
-/* BORRAR */
-async function borrar(id,ruta){
-  if(!confirm("¿Borrar imagen?")) return;
-  await deleteDoc(doc(db,"archivos",id));
-  await deleteObject(ref(storage,ruta));
-  renderAdmin();
 }
 </script>
-
 </body>
 </html>
 
