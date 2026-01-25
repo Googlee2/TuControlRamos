@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>TuControlRamos – Cargador de Datos Online</title>
+<title>TuControlRamos – Cargador de Datos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -72,6 +72,7 @@ img.preview{
 }
 </style>
 </head>
+
 <body>
 
 <!-- LOGIN -->
@@ -118,7 +119,7 @@ img.preview{
 <div class="container hidden" id="empresaBox">
   <h2 id="empresaTitulo"></h2>
 
-  <input type="file" id="file" multiple>
+  <input type="file" id="file" multiple accept="image/*">
   <button class="green" onclick="subir()">Subir archivos</button>
 
   <p><b>Uso de espacio (máx 1 GB)</b></p>
@@ -159,8 +160,20 @@ img.preview{
 </div>
 
 <script>
+/* =============================
+   CONFIG + DEMO AUTOMÁTICA
+============================= */
 const LIMITE = 1024 * 1024 * 1024;
 let usuarioActual = null;
+
+// Empresa demo automática (PC y celular)
+(function(){
+  const e = JSON.parse(localStorage.getItem("empresas") || "{}");
+  if(Object.keys(e).length === 0){
+    e["empresa"] = { pass:"1234" };
+    localStorage.setItem("empresas", JSON.stringify(e));
+  }
+})();
 
 const getEmpresas = () => JSON.parse(localStorage.getItem("empresas") || "{}");
 const saveEmpresas = d => localStorage.setItem("empresas", JSON.stringify(d));
@@ -176,7 +189,9 @@ function fileToBase64(file){
   });
 }
 
-/* LOGIN */
+/* =============================
+   LOGIN
+============================= */
 function login(){
   const t = tipo.value;
   const u = user.value.trim();
@@ -202,7 +217,9 @@ function login(){
 
 function logout(){ location.reload(); }
 
-/* ADMIN */
+/* =============================
+   ADMIN
+============================= */
 function crearEmpresa(){
   const u = newEmpresa.value.trim();
   const p = newPass.value.trim();
@@ -248,7 +265,9 @@ function renderAdmin(){
   }
 }
 
-/* EMPRESA */
+/* =============================
+   EMPRESA (FIX CELULAR)
+============================= */
 async function subir(){
   const files = file.files;
   if(!files.length) return;
@@ -259,6 +278,13 @@ async function subir(){
   let usado = a[usuarioActual].reduce((s,f)=>s+f.size,0);
 
   for(let f of files){
+
+    // 🚫 FIX: límite real para celular
+    if(f.size > 2 * 1024 * 1024){
+      alert("En celulares solo se permiten imágenes de hasta 2 MB");
+      continue;
+    }
+
     if(usado + f.size > LIMITE){
       alert("Límite de 1 GB alcanzado");
       break;
@@ -310,7 +336,9 @@ function renderEmpresa(){
     (total/1024/1024).toFixed(2) + " MB usados de 1024 MB";
 }
 
-/* VISOR */
+/* =============================
+   VISOR + RESET
+============================= */
 function verImagen(src){
   visorImg.src = src;
   visor.style.display = "flex";
@@ -320,7 +348,6 @@ function cerrarVisor(){
   visorImg.src = "";
 }
 
-/* RESET */
 function resetTodo(){
   if(confirm("¿Borrar TODO el sistema?")){
     localStorage.clear();
@@ -331,4 +358,3 @@ function resetTodo(){
 
 </body>
 </html>
-
