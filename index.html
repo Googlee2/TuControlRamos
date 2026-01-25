@@ -36,6 +36,13 @@ img.preview{max-width:120px;max-height:90px;border-radius:6px;border:1px solid #
 <!-- ADMIN -->
 <div class="container hidden" id="adminBox">
   <h2>Panel Administrador</h2>
+
+  <h3>Crear empresa</h3>
+  <input id="newEmpresa" placeholder="Usuario empresa">
+  <input id="newPass" placeholder="Contraseña">
+  <button class="green" onclick="crearEmpresa()">Crear</button>
+
+  <h3>Archivos cargados</h3>
   <table>
     <thead>
       <tr>
@@ -47,12 +54,14 @@ img.preview{max-width:120px;max-height:90px;border-radius:6px;border:1px solid #
     </thead>
     <tbody id="tablaAdmin"></tbody>
   </table>
+
   <button onclick="logout()">Salir</button>
 </div>
 
 <!-- EMPRESA -->
 <div class="container hidden" id="empresaBox">
   <h2 id="empresaTitulo"></h2>
+
   <input type="file" id="file" accept="image/*">
   <button class="green" onclick="subir()">Subir imagen</button>
 
@@ -66,19 +75,21 @@ img.preview{max-width:120px;max-height:90px;border-radius:6px;border:1px solid #
     </thead>
     <tbody id="tablaEmpresa"></tbody>
   </table>
+
   <button onclick="logout()">Salir</button>
 </div>
 
 <!-- VISOR -->
-<div id="visor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);justify-content:center;align-items:center" onclick="this.style.display='none'">
+<div id="visor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);justify-content:center;align-items:center"
+onclick="this.style.display='none'">
   <img id="visorImg" style="max-width:90%;max-height:90%">
 </div>
 
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyClaqvS1LUSZtaeIgvNtKdBGVDi3fEii60",
@@ -90,102 +101,117 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+window.db = getFirestore(app);
+window.storage = getStorage(app);
 
-window.db=db;
-window.storage=storage;
-window.collection=collection;
-window.addDoc=addDoc;
-window.getDocs=getDocs;
-window.deleteDoc=deleteDoc;
-window.doc=doc;
-window.ref=ref;
-window.uploadString=uploadString;
-window.getDownloadURL=getDownloadURL;
-window.deleteObject=deleteObject;
+window.collection = collection;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.query = query;
+window.where = where;
+window.deleteDoc = deleteDoc;
+window.doc = doc;
+window.ref = ref;
+window.uploadBytes = uploadBytes;
+window.getDownloadURL = getDownloadURL;
+window.deleteObject = deleteObject;
 </script>
 
 <script>
 let usuarioActual=null;
 
-function login(){
+/* LOGIN */
+async function login(){
+  const u=user.value.trim();
+  const p=pass.value.trim();
+  if(!u||!p) return alert("Datos incompletos");
+
   if(tipo.value==="admin"){
-    if(user.value==="admin" && pass.value==="colgate"){
+    if(u==="admin" && p==="colgate"){
       loginBox.classList.add("hidden");
       adminBox.classList.remove("hidden");
       renderAdmin();
     } else alert("Admin incorrecto");
   } else {
-    usuarioActual=user.value;
+    const q=query(collection(db,"empresas"),where("user","==",u),where("pass","==",p));
+    const r=await getDocs(q);
+    if(r.empty) return alert("Empresa no válida");
+
+    usuarioActual=u;
     loginBox.classList.add("hidden");
     empresaBox.classList.remove("hidden");
-    empresaTitulo.innerText="Empresa: "+usuarioActual;
+    empresaTitulo.innerText="Empresa: "+u;
     renderEmpresa();
   }
 }
 
 function logout(){location.reload()}
 
-function ver(src){
-  visorImg.src=src;
-  visor.style.display="flex";
+/* EMPRESAS */
+async function crearEmpresa(){
+  if(!newEmpresa.value||!newPass.value) return alert("Completar datos");
+  await addDoc(collection(db,"empresas"),{
+    user:newEmpresa.value,
+    pass:newPass.value
+  });
+  alert("Empresa creada");
+  newEmpresa.value="";
+  newPass.value="";
 }
 
+/* SUBIR IMAGEN */
 async function subir(){
   const f=file.files[0];
-  if(!f) return alert("Elegí una imagen");
+  if(!f) return alert("Seleccioná imagen");
 
-  const fr=new FileReader();
-  fr.onload=async()=>{
-    const ruta=`imagenes/${usuarioActual}/${Date.now()}_${f.name}`;
-    const r=ref(storage,ruta);
-    await uploadString(r,fr.result,"data_url");
-    const url=await getDownloadURL(r);
+  const ruta=`imagenes/${usuarioActual}/${Date.now()}_${f.name}`;
+  const r=ref(storage,ruta);
+  await uploadBytes(r,f);
+  const url=await getDownloadURL(r);
 
-    await addDoc(collection(db,"archivos"),{
-      empresa:usuarioActual,
-      nombre:f.name,
-      url:url,
-      ruta:ruta
-    });
+  await addDoc(collection(db,"archivos"),{
+    empresa:usuarioActual,
+    nombre:f.name,
+    url:url,
+    ruta:ruta
+  });
 
-    alert("Imagen subida ✔");
-    renderEmpresa();
-  };
-  fr.readAsDataURL(f);
+  alert("Imagen subida ✔");
+  renderEmpresa();
 }
 
+/* RENDER EMPRESA */
 async function renderEmpresa(){
   tablaEmpresa.innerHTML="";
-  const q=await getDocs(collection(db,"archivos"));
-  q.forEach(d=>{
+  const q=query(collection(db,"archivos"),where("empresa","==",usuarioActual));
+  const r=await getDocs(q);
+  r.forEach(d=>{
     const f=d.data();
-    if(f.empresa===usuarioActual){
-      tablaEmpresa.innerHTML+=`
-      <tr>
-        <td>${f.nombre}</td>
-        <td><img src="${f.url}" class="preview" onclick="ver('${f.url}')"></td>
-      </tr>`;
-    }
+    tablaEmpresa.innerHTML+=`
+    <tr>
+      <td>${f.nombre}</td>
+      <td><img src="${f.url}" class="preview" onclick="visorImg.src='${f.url}';visor.style.display='flex'"></td>
+    </tr>`;
   });
 }
 
+/* RENDER ADMIN */
 async function renderAdmin(){
   tablaAdmin.innerHTML="";
-  const q=await getDocs(collection(db,"archivos"));
-  q.forEach(d=>{
+  const r=await getDocs(collection(db,"archivos"));
+  r.forEach(d=>{
     const f=d.data();
     tablaAdmin.innerHTML+=`
     <tr>
       <td>${f.empresa}</td>
       <td>${f.nombre}</td>
-      <td><img src="${f.url}" class="preview" onclick="ver('${f.url}')"></td>
+      <td><img src="${f.url}" class="preview" onclick="visorImg.src='${f.url}';visor.style.display='flex'"></td>
       <td><button class="red" onclick="borrar('${d.id}','${f.ruta}')">🗑</button></td>
     </tr>`;
   });
 }
 
+/* BORRAR */
 async function borrar(id,ruta){
   if(!confirm("¿Borrar imagen?")) return;
   await deleteDoc(doc(db,"archivos",id));
