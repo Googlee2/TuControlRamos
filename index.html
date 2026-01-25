@@ -2,76 +2,23 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>TuControlRamos – Cargador de Datos Online</title>
+<title>TuControlRamos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#dff3ff;
-  margin:0;
-}
-.container{
-  max-width:1200px;
-  margin:30px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:14px;
-  box-shadow:0 10px 25px rgba(0,0,0,.15);
-}
-h2{text-align:center}
-input,select,button{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-}
-button{
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
+body{font-family:Arial;background:#dff3ff;margin:0}
+.container{max-width:1200px;margin:30px auto;background:#fff;padding:25px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.hidden{display:none}
+input,select,button{width:100%;padding:10px;margin:6px 0}
+button{border:none;border-radius:6px;cursor:pointer}
 .green{background:#2ecc71;color:#fff}
 .red{background:#e74c3c;color:#fff}
-.hidden{display:none}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-  text-align:center
-}
-
-.progress{
-  width:100%;
-  height:22px;
-  background:#ddd;
-  border-radius:12px;
-  overflow:hidden;
-  margin:10px 0;
-}
-.progress div{
-  height:100%;
-  width:0%;
-  transition:.3s;
-}
-
-img.preview{
-  max-width:120px;
-  max-height:90px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  object-fit:contain;
-}
-.small-btn{
-  padding:6px 10px;
-  width:auto;
-}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ccc;padding:8px;text-align:center}
+img.preview{max-width:120px;max-height:90px;border-radius:6px;border:1px solid #ccc;cursor:pointer}
 </style>
 </head>
+
 <body>
 
 <!-- LOGIN -->
@@ -89,220 +36,161 @@ img.preview{
 <!-- ADMIN -->
 <div class="container hidden" id="adminBox">
   <h2>Panel Administrador</h2>
-
-  <h3>Crear empresa</h3>
-  <input id="newEmpresa" placeholder="Usuario empresa">
-  <input id="newPass" placeholder="Contraseña empresa">
-  <button class="green" onclick="crearEmpresa()">Crear empresa</button>
-
-  <h3>Archivos cargados</h3>
   <table>
     <thead>
       <tr>
         <th>Empresa</th>
         <th>Archivo</th>
-        <th>Tipo</th>
-        <th>Tamaño (MB)</th>
         <th>Vista</th>
-        <th>Acciones</th>
+        <th>Acción</th>
       </tr>
     </thead>
     <tbody id="tablaAdmin"></tbody>
   </table>
-
-  <button class="red" onclick="resetTodo()">RESET TOTAL</button>
   <button onclick="logout()">Salir</button>
 </div>
 
 <!-- EMPRESA -->
 <div class="container hidden" id="empresaBox">
   <h2 id="empresaTitulo"></h2>
-
   <input type="file" id="file" accept="image/*">
   <button class="green" onclick="subir()">Subir imagen</button>
 
-  <p><b>Uso de espacio</b></p>
-  <div class="progress"><div id="barra"></div></div>
-  <p id="usoTexto"></p>
-
-  <h3>Mis archivos</h3>
+  <h3>Mis imágenes</h3>
   <table>
     <thead>
       <tr>
         <th>Archivo</th>
-        <th>Tipo</th>
-        <th>Tamaño (MB)</th>
         <th>Vista</th>
       </tr>
     </thead>
     <tbody id="tablaEmpresa"></tbody>
   </table>
-
   <button onclick="logout()">Salir</button>
 </div>
 
 <!-- VISOR -->
-<div id="visor"
-style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;justify-content:center;align-items:center;"
-onclick="cerrarVisor()">
-  <img id="visorImg" style="max-width:90%;max-height:90%;border-radius:10px;">
+<div id="visor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);justify-content:center;align-items:center" onclick="this.style.display='none'">
+  <img id="visorImg" style="max-width:90%;max-height:90%">
 </div>
 
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyClaqvS1LUSZtaeIgvNtKdBGVDi3fEii60",
+  authDomain: "tucontrolramos-8ec4a.firebaseapp.com",
+  projectId: "tucontrolramos-8ec4a",
+  storageBucket: "tucontrolramos-8ec4a.appspot.com",
+  messagingSenderId: "912354606273",
+  appId: "1:912354606273:web:c54b4dc67e2da1e9546840"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+window.db=db;
+window.storage=storage;
+window.collection=collection;
+window.addDoc=addDoc;
+window.getDocs=getDocs;
+window.deleteDoc=deleteDoc;
+window.doc=doc;
+window.ref=ref;
+window.uploadString=uploadString;
+window.getDownloadURL=getDownloadURL;
+window.deleteObject=deleteObject;
+</script>
+
 <script>
-/* ================= UTIL ================= */
-const esCelular = () => /Android|iPhone|iPad/i.test(navigator.userAgent);
+let usuarioActual=null;
 
-const getEmpresas = () => JSON.parse(localStorage.getItem("empresas") || "{}");
-const saveEmpresas = d => localStorage.setItem("empresas", JSON.stringify(d));
-const getArchivos = () => JSON.parse(localStorage.getItem("archivos") || "{}");
-const saveArchivos = d => localStorage.setItem("archivos", JSON.stringify(d));
-
-let usuarioActual = null;
-
-/* ============ INIT ============ */
-if(!localStorage.getItem("empresas")){
-  saveEmpresas({ empresa35:{pass:"1234"} });
-}
-if(!localStorage.getItem("archivos")){
-  saveArchivos({});
-}
-
-/* ============ LOGIN ============ */
 function login(){
-  const t = tipo.value;
-  const u = user.value.trim();
-  const p = pass.value.trim();
-
-  if(!u||!p) return alert("Datos incompletos");
-
-  if(t==="admin"){
-    if(u==="admin" && p==="colgate"){
+  if(tipo.value==="admin"){
+    if(user.value==="admin" && pass.value==="colgate"){
       loginBox.classList.add("hidden");
       adminBox.classList.remove("hidden");
       renderAdmin();
     } else alert("Admin incorrecto");
-  }else{
-    const e = getEmpresas();
-    if(!e[u]) return alert("Empresa no existe");
-    if(e[u].pass!==p) return alert("Clave incorrecta");
-
-    usuarioActual=u;
+  } else {
+    usuarioActual=user.value;
     loginBox.classList.add("hidden");
     empresaBox.classList.remove("hidden");
-    empresaTitulo.innerText="Empresa: "+u;
+    empresaTitulo.innerText="Empresa: "+usuarioActual;
     renderEmpresa();
   }
 }
 
-function logout(){ location.reload(); }
+function logout(){location.reload()}
 
-/* ============ IMAGEN CELULAR ============ */
-function comprimirImagen(file){
-  return new Promise(res=>{
-    const fr=new FileReader();
-    fr.onload=e=>{
-      const img=new Image();
-      img.onload=()=>{
-        const c=document.createElement("canvas");
-        const max=1024;
-        let w=img.width,h=img.height;
-        if(w>h && w>max){ h*=max/w; w=max }
-        else if(h>max){ w*=max/h; h=max }
-        c.width=w;c.height=h;
-        c.getContext("2d").drawImage(img,0,0,w,h);
-        res(c.toDataURL("image/jpeg",0.7));
-      };
-      img.src=e.target.result;
-    };
-    fr.readAsDataURL(file);
-  });
+function ver(src){
+  visorImg.src=src;
+  visor.style.display="flex";
 }
 
-/* ============ SUBIR ============ */
 async function subir(){
   const f=file.files[0];
-  if(!f) return alert("Seleccioná una imagen");
+  if(!f) return alert("Elegí una imagen");
 
-  const a=getArchivos();
-  if(!a[usuarioActual]) a[usuarioActual]=[];
+  const fr=new FileReader();
+  fr.onload=async()=>{
+    const ruta=`imagenes/${usuarioActual}/${Date.now()}_${f.name}`;
+    const r=ref(storage,ruta);
+    await uploadString(r,fr.result,"data_url");
+    const url=await getDownloadURL(r);
 
-  let data;
-  if(esCelular()){
-    data=await comprimirImagen(f);
-  }else{
-    data=await new Promise(r=>{
-      const fr=new FileReader();
-      fr.onload=()=>r(fr.result);
-      fr.readAsDataURL(f);
+    await addDoc(collection(db,"archivos"),{
+      empresa:usuarioActual,
+      nombre:f.name,
+      url:url,
+      ruta:ruta
     });
-  }
 
-  a[usuarioActual].push({
-    name:f.name,
-    type:f.type,
-    size:data.length,
-    preview:data
-  });
-
-  saveArchivos(a);
-  alert("Imagen cargada correctamente");
-  renderEmpresa();
+    alert("Imagen subida ✔");
+    renderEmpresa();
+  };
+  fr.readAsDataURL(f);
 }
 
-/* ============ RENDER ============ */
-function renderEmpresa(){
-  const a=getArchivos()[usuarioActual]||[];
+async function renderEmpresa(){
   tablaEmpresa.innerHTML="";
-  a.forEach(f=>{
-    tablaEmpresa.innerHTML+=`
+  const q=await getDocs(collection(db,"archivos"));
+  q.forEach(d=>{
+    const f=d.data();
+    if(f.empresa===usuarioActual){
+      tablaEmpresa.innerHTML+=`
+      <tr>
+        <td>${f.nombre}</td>
+        <td><img src="${f.url}" class="preview" onclick="ver('${f.url}')"></td>
+      </tr>`;
+    }
+  });
+}
+
+async function renderAdmin(){
+  tablaAdmin.innerHTML="";
+  const q=await getDocs(collection(db,"archivos"));
+  q.forEach(d=>{
+    const f=d.data();
+    tablaAdmin.innerHTML+=`
     <tr>
-      <td>${f.name}</td>
-      <td>${f.type}</td>
-      <td>${(f.size/1024/1024).toFixed(2)}</td>
-      <td><img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')"></td>
+      <td>${f.empresa}</td>
+      <td>${f.nombre}</td>
+      <td><img src="${f.url}" class="preview" onclick="ver('${f.url}')"></td>
+      <td><button class="red" onclick="borrar('${d.id}','${f.ruta}')">🗑</button></td>
     </tr>`;
   });
 }
 
-function renderAdmin(){
-  const a=getArchivos();
-  tablaAdmin.innerHTML="";
-  for(let e in a){
-    a[e].forEach((f,i)=>{
-      tablaAdmin.innerHTML+=`
-      <tr>
-        <td>${e}</td>
-        <td>${f.name}</td>
-        <td>${f.type}</td>
-        <td>${(f.size/1024/1024).toFixed(2)}</td>
-        <td><img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')"></td>
-        <td><button class="red small-btn" onclick="borrarArchivo('${e}',${i})">🗑</button></td>
-      </tr>`;
-    });
-  }
-}
-
-function borrarArchivo(e,i){
-  const a=getArchivos();
-  a[e].splice(i,1);
-  saveArchivos(a);
+async function borrar(id,ruta){
+  if(!confirm("¿Borrar imagen?")) return;
+  await deleteDoc(doc(db,"archivos",id));
+  await deleteObject(ref(storage,ruta));
   renderAdmin();
-}
-
-function verImagen(src){
-  visorImg.src=src;
-  visor.style.display="flex";
-}
-function cerrarVisor(){
-  visor.style.display="none";
-  visorImg.src="";
-}
-
-function resetTodo(){
-  if(confirm("¿Borrar todo?")){
-    localStorage.clear();
-    location.reload();
-  }
 }
 </script>
 
