@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>TuControlRamos – Cargador de Datos Online</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
@@ -117,9 +118,7 @@ img.preview{
 <div class="container hidden" id="empresaBox">
   <h2 id="empresaTitulo"></h2>
 
-  <!-- 🔧 INPUT CORREGIDO -->
-  <input type="file" id="file" multiple accept="image/*">
-
+  <input type="file" id="file" multiple>
   <button class="green" onclick="subir()">Subir archivos</button>
 
   <p><b>Uso de espacio (máx 1 GB)</b></p>
@@ -177,6 +176,7 @@ function fileToBase64(file){
   });
 }
 
+/* LOGIN */
 function login(){
   const t = tipo.value;
   const u = user.value.trim();
@@ -202,6 +202,7 @@ function login(){
 
 function logout(){ location.reload(); }
 
+/* ADMIN */
 function crearEmpresa(){
   const u = newEmpresa.value.trim();
   const p = newPass.value.trim();
@@ -228,8 +229,7 @@ function renderAdmin(){
   for(let emp in a){
     a[emp].forEach((f,i)=>{
       let vista = f.preview
-        ? `<img src="${f.preview}" class="preview"
-             onclick="verImagen('${f.preview}')" style="cursor:pointer">`
+        ? `<img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')">`
         : "—";
 
       tablaAdmin.innerHTML += `
@@ -248,6 +248,7 @@ function renderAdmin(){
   }
 }
 
+/* EMPRESA */
 async function subir(){
   const files = file.files;
   if(!files.length) return;
@@ -272,7 +273,7 @@ async function subir(){
       name: f.name,
       type: f.type,
       size: f.size,
-      preview
+      preview: preview
     });
 
     usado += f.size;
@@ -290,8 +291,7 @@ function renderEmpresa(){
   a.forEach(f=>{
     total += f.size;
     let vista = f.preview
-      ? `<img src="${f.preview}" class="preview"
-           onclick="verImagen('${f.preview}')" style="cursor:pointer">`
+      ? `<img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')">`
       : "—";
 
     tablaEmpresa.innerHTML += `
@@ -310,6 +310,7 @@ function renderEmpresa(){
     (total/1024/1024).toFixed(2) + " MB usados de 1024 MB";
 }
 
+/* VISOR */
 function verImagen(src){
   visorImg.src = src;
   visor.style.display = "flex";
@@ -319,17 +320,12 @@ function cerrarVisor(){
   visorImg.src = "";
 }
 
+/* RESET */
 function resetTodo(){
   if(confirm("¿Borrar TODO el sistema?")){
     localStorage.clear();
     location.reload();
   }
-}
-
-/* ✅ ACTIVAR CÁMARA SOLO EN CELULAR (NO ROMPE PC) */
-if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-  document.getElementById("file")
-    .setAttribute("capture","environment");
 }
 </script>
 
