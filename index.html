@@ -6,41 +6,37 @@
 <title>TuControl</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
+body{
+    font-family:Arial, sans-serif;
     background:#f2f2f2;
-    margin:0;
     padding:20px;
 }
-.card {
+.card{
     max-width:420px;
     margin:auto;
-    background:white;
+    background:#fff;
     padding:20px;
     border-radius:10px;
     box-shadow:0 5px 15px rgba(0,0,0,.2);
 }
-button {
+input,button{
     width:100%;
     padding:10px;
     margin-top:10px;
+}
+button{
     background:#0a7;
+    color:#fff;
     border:none;
-    color:white;
-    font-size:16px;
     border-radius:5px;
+    font-size:16px;
 }
-input {
-    width:100%;
-    padding:8px;
-    margin-top:10px;
-}
-img {
+img{
     max-width:100%;
     margin-top:10px;
     border-radius:6px;
 }
-.hidden { display:none; }
+.hidden{display:none;}
 </style>
 </head>
 
@@ -63,66 +59,91 @@ img {
 </div>
 
 <script>
-const MAX_MOBILE_MB = 2;
-const MAX_PC_MB = 10;
-
-function esCelular() {
+function esCelular(){
     return /Android|iPhone|iPad/i.test(navigator.userAgent);
 }
 
-function ingresar() {
-    const emp = empresa.value.trim();
-    const cla = clave.value.trim();
-
-    if (!emp || !cla) {
+function ingresar(){
+    if(!empresa.value || !clave.value){
         alert("Completa los datos");
         return;
     }
-
-    localStorage.setItem("empresa", emp);
+    localStorage.setItem("empresa", empresa.value);
     login.classList.add("hidden");
     panel.classList.remove("hidden");
-    empresaTitulo.textContent = "Empresa: " + emp;
+    empresaTitulo.textContent = "Empresa: " + empresa.value;
     cargarImagenes();
 }
 
-function subir() {
+function subir(){
     const file = fileInput.files[0];
-    if (!file) return;
+    if(!file) return;
 
-    const maxMB = esCelular() ? MAX_MOBILE_MB : MAX_PC_MB;
-    const sizeMB = file.size / 1024 / 1024;
-
-    if (sizeMB > maxMB) {
-        alert(`En ${esCelular() ? "celulares" : "PC"} solo se permiten imágenes de hasta ${maxMB} MB`);
-        return;
+    if(esCelular()){
+        comprimirImagen(file);
+    }else{
+        leerImagen(file);
     }
+}
 
+function comprimirImagen(file){
     const reader = new FileReader();
-    reader.onload = e => {
-        const emp = localStorage.getItem("empresa");
-        const imgs = JSON.parse(localStorage.getItem(emp) || "[]");
-        imgs.push(e.target.result);
-        localStorage.setItem(emp, JSON.stringify(imgs));
-        cargarImagenes();
+    reader.onload = e=>{
+        const img = new Image();
+        img.onload = ()=>{
+            const canvas = document.createElement("canvas");
+            const max = 1280;
+            let w = img.width;
+            let h = img.height;
+
+            if(w > h && w > max){
+                h *= max / w;
+                w = max;
+            }else if(h > max){
+                w *= max / h;
+                h = max;
+            }
+
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext("2d").drawImage(img,0,0,w,h);
+
+            const data = canvas.toDataURL("image/jpeg",0.7);
+            guardarImagen(data);
+        };
+        img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
 
-function cargarImagenes() {
+function leerImagen(file){
+    const reader = new FileReader();
+    reader.onload = e => guardarImagen(e.target.result);
+    reader.readAsDataURL(file);
+}
+
+function guardarImagen(data){
+    const emp = localStorage.getItem("empresa");
+    const imgs = JSON.parse(localStorage.getItem(emp) || "[]");
+    imgs.push(data);
+    localStorage.setItem(emp, JSON.stringify(imgs));
+    cargarImagenes();
+}
+
+function cargarImagenes(){
     const emp = localStorage.getItem("empresa");
     const imgs = JSON.parse(localStorage.getItem(emp) || "[]");
     imagenes.innerHTML = "";
-    imgs.forEach(src => {
+    imgs.forEach(src=>{
         const img = document.createElement("img");
         img.src = src;
         imagenes.appendChild(img);
     });
 }
 
-window.onload = () => {
+window.onload = ()=>{
     const emp = localStorage.getItem("empresa");
-    if (emp) {
+    if(emp){
         login.classList.add("hidden");
         panel.classList.remove("hidden");
         empresaTitulo.textContent = "Empresa: " + emp;
