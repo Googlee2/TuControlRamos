@@ -118,10 +118,10 @@ img.preview{
 <div class="container hidden" id="empresaBox">
   <h2 id="empresaTitulo"></h2>
 
-  <input type="file" id="file" multiple>
-  <button class="green" onclick="subir()">Subir archivos</button>
+  <input type="file" id="file" accept="image/*">
+  <button class="green" onclick="subir()">Subir imagen</button>
 
-  <p><b>Uso de espacio (máx 1 GB)</b></p>
+  <p><b>Uso de espacio</b></p>
   <div class="progress"><div id="barra"></div></div>
   <p id="usoTexto"></p>
 
@@ -143,186 +143,163 @@ img.preview{
 
 <!-- VISOR -->
 <div id="visor"
-     style="display:none;
-     position:fixed;
-     inset:0;
-     background:rgba(0,0,0,.85);
-     z-index:9999;
-     justify-content:center;
-     align-items:center;"
-     onclick="cerrarVisor()">
-  <img id="visorImg"
-       style="max-width:90%;
-       max-height:90%;
-       border-radius:10px;
-       box-shadow:0 0 25px #000">
+style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;justify-content:center;align-items:center;"
+onclick="cerrarVisor()">
+  <img id="visorImg" style="max-width:90%;max-height:90%;border-radius:10px;">
 </div>
 
 <script>
-const LIMITE = 1024 * 1024 * 1024;
-let usuarioActual = null;
+/* ================= UTIL ================= */
+const esCelular = () => /Android|iPhone|iPad/i.test(navigator.userAgent);
 
 const getEmpresas = () => JSON.parse(localStorage.getItem("empresas") || "{}");
 const saveEmpresas = d => localStorage.setItem("empresas", JSON.stringify(d));
 const getArchivos = () => JSON.parse(localStorage.getItem("archivos") || "{}");
 const saveArchivos = d => localStorage.setItem("archivos", JSON.stringify(d));
 
-function fileToBase64(file){
-  return new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = e => reject(e);
-    reader.readAsDataURL(file);
-  });
+let usuarioActual = null;
+
+/* ============ INIT ============ */
+if(!localStorage.getItem("empresas")){
+  saveEmpresas({ empresa35:{pass:"1234"} });
+}
+if(!localStorage.getItem("archivos")){
+  saveArchivos({});
 }
 
-/* LOGIN */
+/* ============ LOGIN ============ */
 function login(){
   const t = tipo.value;
   const u = user.value.trim();
   const p = pass.value.trim();
 
-  if(t === "admin"){
-    if(u === "admin" && p === "colgate"){
+  if(!u||!p) return alert("Datos incompletos");
+
+  if(t==="admin"){
+    if(u==="admin" && p==="colgate"){
       loginBox.classList.add("hidden");
       adminBox.classList.remove("hidden");
       renderAdmin();
-    } else alert("Credenciales incorrectas");
-  } else {
+    } else alert("Admin incorrecto");
+  }else{
     const e = getEmpresas();
-    if(e[u] && e[u].pass === p){
-      usuarioActual = u;
-      loginBox.classList.add("hidden");
-      empresaBox.classList.remove("hidden");
-      empresaTitulo.innerText = "Empresa: " + u;
-      renderEmpresa();
-    } else alert("Credenciales incorrectas");
+    if(!e[u]) return alert("Empresa no existe");
+    if(e[u].pass!==p) return alert("Clave incorrecta");
+
+    usuarioActual=u;
+    loginBox.classList.add("hidden");
+    empresaBox.classList.remove("hidden");
+    empresaTitulo.innerText="Empresa: "+u;
+    renderEmpresa();
   }
 }
 
 function logout(){ location.reload(); }
 
-/* ADMIN */
-function crearEmpresa(){
-  const u = newEmpresa.value.trim();
-  const p = newPass.value.trim();
-  if(!u || !p) return alert("Datos incompletos");
-  const e = getEmpresas();
-  e[u] = { pass:p };
-  saveEmpresas(e);
-  alert("Empresa creada");
-  newEmpresa.value = newPass.value = "";
+/* ============ IMAGEN CELULAR ============ */
+function comprimirImagen(file){
+  return new Promise(res=>{
+    const fr=new FileReader();
+    fr.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const c=document.createElement("canvas");
+        const max=1024;
+        let w=img.width,h=img.height;
+        if(w>h && w>max){ h*=max/w; w=max }
+        else if(h>max){ w*=max/h; h=max }
+        c.width=w;c.height=h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        res(c.toDataURL("image/jpeg",0.7));
+      };
+      img.src=e.target.result;
+    };
+    fr.readAsDataURL(file);
+  });
 }
 
-function borrarArchivo(emp, index){
-  if(!confirm("¿Eliminar archivo?")) return;
-  const a = getArchivos();
-  a[emp].splice(index,1);
+/* ============ SUBIR ============ */
+async function subir(){
+  const f=file.files[0];
+  if(!f) return alert("Seleccioná una imagen");
+
+  const a=getArchivos();
+  if(!a[usuarioActual]) a[usuarioActual]=[];
+
+  let data;
+  if(esCelular()){
+    data=await comprimirImagen(f);
+  }else{
+    data=await new Promise(r=>{
+      const fr=new FileReader();
+      fr.onload=()=>r(fr.result);
+      fr.readAsDataURL(f);
+    });
+  }
+
+  a[usuarioActual].push({
+    name:f.name,
+    type:f.type,
+    size:data.length,
+    preview:data
+  });
+
   saveArchivos(a);
-  renderAdmin();
+  alert("Imagen cargada correctamente");
+  renderEmpresa();
+}
+
+/* ============ RENDER ============ */
+function renderEmpresa(){
+  const a=getArchivos()[usuarioActual]||[];
+  tablaEmpresa.innerHTML="";
+  a.forEach(f=>{
+    tablaEmpresa.innerHTML+=`
+    <tr>
+      <td>${f.name}</td>
+      <td>${f.type}</td>
+      <td>${(f.size/1024/1024).toFixed(2)}</td>
+      <td><img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')"></td>
+    </tr>`;
+  });
 }
 
 function renderAdmin(){
-  const a = getArchivos();
-  tablaAdmin.innerHTML = "";
-
-  for(let emp in a){
-    a[emp].forEach((f,i)=>{
-      let vista = f.preview
-        ? `<img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')">`
-        : "—";
-
-      tablaAdmin.innerHTML += `
+  const a=getArchivos();
+  tablaAdmin.innerHTML="";
+  for(let e in a){
+    a[e].forEach((f,i)=>{
+      tablaAdmin.innerHTML+=`
       <tr>
-        <td>${emp}</td>
+        <td>${e}</td>
         <td>${f.name}</td>
         <td>${f.type}</td>
         <td>${(f.size/1024/1024).toFixed(2)}</td>
-        <td>${vista}</td>
-        <td>
-          <button class="red small-btn"
-            onclick="borrarArchivo('${emp}',${i})">🗑</button>
-        </td>
+        <td><img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')"></td>
+        <td><button class="red small-btn" onclick="borrarArchivo('${e}',${i})">🗑</button></td>
       </tr>`;
     });
   }
 }
 
-/* EMPRESA */
-async function subir(){
-  const files = file.files;
-  if(!files.length) return;
-
-  const a = getArchivos();
-  if(!a[usuarioActual]) a[usuarioActual] = [];
-
-  let usado = a[usuarioActual].reduce((s,f)=>s+f.size,0);
-
-  for(let f of files){
-    if(usado + f.size > LIMITE){
-      alert("Límite de 1 GB alcanzado");
-      break;
-    }
-
-    let preview = null;
-    if(f.type.startsWith("image/")){
-      preview = await fileToBase64(f);
-    }
-
-    a[usuarioActual].push({
-      name: f.name,
-      type: f.type,
-      size: f.size,
-      preview: preview
-    });
-
-    usado += f.size;
-  }
-
+function borrarArchivo(e,i){
+  const a=getArchivos();
+  a[e].splice(i,1);
   saveArchivos(a);
-  renderEmpresa();
+  renderAdmin();
 }
 
-function renderEmpresa(){
-  const a = getArchivos()[usuarioActual] || [];
-  tablaEmpresa.innerHTML = "";
-  let total = 0;
-
-  a.forEach(f=>{
-    total += f.size;
-    let vista = f.preview
-      ? `<img src="${f.preview}" class="preview" onclick="verImagen('${f.preview}')">`
-      : "—";
-
-    tablaEmpresa.innerHTML += `
-    <tr>
-      <td>${f.name}</td>
-      <td>${f.type}</td>
-      <td>${(f.size/1024/1024).toFixed(2)}</td>
-      <td>${vista}</td>
-    </tr>`;
-  });
-
-  const p = (total / LIMITE) * 100;
-  barra.style.width = p + "%";
-  barra.style.background = p>90 ? "red" : p>70 ? "orange" : "green";
-  usoTexto.innerText =
-    (total/1024/1024).toFixed(2) + " MB usados de 1024 MB";
-}
-
-/* VISOR */
 function verImagen(src){
-  visorImg.src = src;
-  visor.style.display = "flex";
+  visorImg.src=src;
+  visor.style.display="flex";
 }
 function cerrarVisor(){
-  visor.style.display = "none";
-  visorImg.src = "";
+  visor.style.display="none";
+  visorImg.src="";
 }
 
-/* RESET */
 function resetTodo(){
-  if(confirm("¿Borrar TODO el sistema?")){
+  if(confirm("¿Borrar todo?")){
     localStorage.clear();
     location.reload();
   }
@@ -331,4 +308,5 @@ function resetTodo(){
 
 </body>
 </html>
+
 
