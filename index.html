@@ -3,399 +3,1435 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuControlRamos - Expertos en Electrónica</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>TuControlRamos - Controles Remotos y Reparaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Mercado Pago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
-        :root {
-            --rojo-principal: #e30613;
-            --azul-oscuro: #002d72;
-            --gris-fondo: #f4f4f4;
-            --blanco: #ffffff;
-            --negro: #1a1a1a;
-            --sombra-suave: 0 10px 30px rgba(0,0,0,0.05);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --rojo-principal: #D32F2F;
+            --rojo-oscuro: #B71C1C;
+            --rojo-claro: #EF5350;
+            --negro: #1A1A1A;
+            --gris-oscuro: #2C2C2C;
+            --gris-medio: #757575;
+            --gris-claro: #E0E0E0;
+            --blanco: #FFFFFF;
+        }
 
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: var(--blanco);
-            /* Textura sutil de fondo */
-            background-image: url('img/textura-blanca.png'); 
             color: var(--negro);
             overflow-x: hidden;
         }
 
-        /* --- HEADER --- */
         .header {
-            background: var(--blanco);
-            padding: 1.2rem 0;
+            background: linear-gradient(135deg, var(--rojo-oscuro) 0%, var(--rojo-principal) 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(211, 47, 47, 0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-bottom: 4px solid var(--rojo-principal);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .nav-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .logo {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 2.5rem;
-            color: var(--azul-oscuro);
-            text-decoration: none;
-            letter-spacing: 1px;
+            color: var(--blanco);
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .logo span { color: var(--rojo-principal); }
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
 
-        .nav-menu { display: flex; gap: 2rem; list-style: none; }
         .nav-menu a {
+            color: var(--blanco);
             text-decoration: none;
-            color: var(--negro);
-            font-weight: 700;
-            font-size: 0.85rem;
+            font-weight: 600;
+            font-size: 0.95rem;
             text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .nav-menu a:hover { color: var(--rojo-principal); }
-
-        /* --- HERO CON fondo-hero.png --- */
-        .hero {
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
             position: relative;
-            height: 70vh;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--blanco);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            color: var(--blanco);
+            font-size: 1.5rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--rojo-oscuro);
+            color: var(--blanco);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--negro) 0%, var(--gris-oscuro) 100%);
+            padding: 6rem 2rem;
             text-align: center;
-            color: var(--blanco);
-            /* Usamos la imagen que guardaste */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/fondo-hero.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
         }
 
-        .hero-content h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 5rem;
-            line-height: 1;
-            margin-bottom: 1rem;
-            text-shadow: 2px 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .wave-divider {
+        .hero::before {
+            content: '';
             position: absolute;
-            bottom: -2px;
-            width: 100%;
-            fill: var(--blanco);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, var(--rojo-principal) 0%, transparent 50%);
+            opacity: 0.15;
+            animation: pulse 4s ease-in-out infinite;
         }
 
-        /* --- PRODUCTOS --- */
-        .products-section {
+        @keyframes pulse {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.25; }
+        }
+
+        .hero-content {
             max-width: 1200px;
-            margin: 5rem auto;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 4.5rem;
+            color: var(--blanco);
+            margin-bottom: 1.5rem;
+            letter-spacing: 4px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--gris-claro);
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-highlight {
+            color: var(--rojo-claro);
+            font-weight: 700;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .featured-categories {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-card {
+            background: linear-gradient(135deg, var(--rojo-principal) 0%, var(--rojo-oscuro) 100%);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .category-card:hover::before {
+            top: -30%;
+            left: -30%;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(211, 47, 47, 0.4);
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .category-card h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--blanco);
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .category-card p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .products-section {
+            max-width: 1400px;
+            margin: 4rem auto;
             padding: 0 2rem;
         }
 
         .section-title {
-            text-align: center;
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 3.5rem;
-            color: var(--azul-oscuro);
-            margin-bottom: 4rem;
+            font-size: 3rem;
+            color: var(--rojo-principal);
+            margin-bottom: 3rem;
+            text-align: center;
+            letter-spacing: 3px;
             position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--rojo-principal), transparent);
         }
 
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2.5rem;
+            gap: 2rem;
+            margin-bottom: 4rem;
         }
 
         .product-card {
             background: var(--blanco);
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--sombra-suave);
-            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            animation: scaleIn 0.5s ease-out backwards;
+        }
+
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+        .product-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .product-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border-color: var(--rojo-principal);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(211, 47, 47, 0.3);
         }
 
         .product-image {
             width: 100%;
-            height: 180px;
-            object-fit: contain;
-            margin-bottom: 1.5rem;
+            height: 250px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .product-card h3 {
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-image-placeholder {
+            font-size: 5rem;
+            background: linear-gradient(135deg, var(--gris-claro) 0%, #bdbdbd 100%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--rojo-principal);
+            color: var(--blanco);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-title {
             font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--negro);
             margin-bottom: 0.5rem;
-            color: var(--azul-oscuro);
+        }
+
+        .product-description {
+            font-size: 0.9rem;
+            color: var(--gris-medio);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .product-price {
-            display: block;
             font-size: 1.8rem;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--rojo-principal);
-            margin: 1rem 0;
         }
 
-        .add-btn {
-            background: var(--rojo-principal);
-            color: white;
+        .add-to-cart-btn {
+            background: linear-gradient(135deg, var(--rojo-principal) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
             border: none;
-            padding: 0.9rem 2.5rem;
-            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             text-transform: uppercase;
+            font-size: 0.85rem;
             letter-spacing: 1px;
         }
 
-        .add-btn:hover {
-            background: var(--azul-oscuro);
+        .add-to-cart-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
         }
 
-        /* --- CARRITO --- */
+        .add-to-cart-btn:active {
+            transform: scale(0.98);
+        }
+
         .cart-modal {
             position: fixed;
             top: 0;
             right: -100%;
             width: 450px;
-            max-width: 90%;
-            height: 100%;
-            background: white;
+            max-width: 100%;
+            height: 100vh;
+            background-color: var(--blanco);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
             z-index: 2000;
-            transition: 0.4s ease-in-out;
-            padding: 2.5rem;
+            transition: right 0.4s ease;
             display: flex;
             flex-direction: column;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
         }
-        .cart-modal.active { right: 0; }
+
+        .cart-modal.active {
+            right: 0;
+        }
 
         .cart-header {
+            background: linear-gradient(135deg, var(--rojo-principal) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
+            padding: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid var(--gris-fondo);
-            padding-bottom: 1rem;
         }
 
-        .close-btn { font-size: 2rem; cursor: pointer; border: none; background: none; }
+        .cart-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
 
-        #cartItems { flex: 1; overflow-y: auto; margin: 1.5rem 0; }
+        .close-cart {
+            background: none;
+            border: none;
+            color: var(--blanco);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-cart:hover {
+            transform: rotate(90deg);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
 
         .cart-item {
             display: flex;
-            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gris-claro);
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background-color: var(--gris-claro);
+            border-radius: 8px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-image-placeholder {
+            font-size: 2rem;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-price {
+            color: var(--rojo-principal);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .quantity-btn {
+            background-color: var(--rojo-principal);
+            color: var(--blanco);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--rojo-oscuro);
+            transform: scale(1.1);
+        }
+
+        .remove-item {
+            background-color: transparent;
+            border: none;
+            color: var(--gris-medio);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .remove-item:hover {
+            color: var(--rojo-principal);
+        }
+
+        .cart-footer {
+            border-top: 2px solid var(--gris-claro);
+            padding: 2rem;
+            background-color: #fafafa;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .cart-total-amount {
+            color: var(--rojo-principal);
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #009EE3 0%, #0070BA 100%);
+            color: var(--blanco);
+            border: none;
+            padding: 1.2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .checkout-btn:hover {
+            box-shadow: 0 8px 25px rgba(0, 158, 227, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .checkout-btn:disabled {
+            background: var(--gris-medio);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .whatsapp-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: var(--blanco);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .whatsapp-btn:hover {
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gris-medio);
+        }
+
+        .empty-cart-icon {
+            font-size: 5rem;
             margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
+            opacity: 0.3;
         }
 
         .overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            z-index: 1500;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
         }
-        .overlay.active { display: block; }
 
-        /* --- NOTIFICACIÓN --- */
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .footer {
+            background-color: var(--negro);
+            color: var(--blanco);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-section h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--rojo-claro);
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .footer-section p, .footer-section a {
+            color: var(--gris-claro);
+            line-height: 1.8;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--rojo-claro);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gris-oscuro);
+            color: var(--gris-medio);
+        }
+
         .notification {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--azul-oscuro);
-            color: white;
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--rojo-principal) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
             z-index: 3000;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.4s ease;
+            font-weight: 600;
         }
-        .notification.show { transform: translateX(-50%) translateY(0); }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            padding: 4rem 2rem;
+        }
+
+        .contact-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: var(--blanco);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(211, 47, 47, 0.2);
+        }
+
+        .contact-icon {
+            font-size: 3rem;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--rojo-principal) 0%, var(--rojo-oscuro) 100%);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .contact-item h4 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--rojo-principal);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .contact-item a {
+            color: var(--negro);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .contact-item a:hover {
+            color: var(--rojo-principal);
+        }
+
+        .contact-item p {
+            color: var(--gris-medio);
+            line-height: 1.6;
+        }
+
+        .contact-form-container {
+            background: var(--blanco);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-form-container h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--rojo-principal);
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .form-description {
+            color: var(--gris-medio);
+            margin-bottom: 2rem;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gris-claro);
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--rojo-principal);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D32F2F' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--rojo-principal) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
+            border: none;
+            padding: 1.2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: var(--gris-medio);
+            cursor: not-allowed;
+            transform: none;
+        }
 
         @media (max-width: 768px) {
-            .hero-content h1 { font-size: 3rem; }
+            .hero h1 { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .nav-menu { display: none; }
             .cart-modal { width: 100%; }
+            .featured-categories { grid-template-columns: 1fr; }
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+            .logo { font-size: 1.8rem; }
+            .contact-content { 
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .contact-form-container {
+                padding: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-
     <header class="header">
         <div class="nav-container">
-            <a href="#" class="logo">TU<span>CONTROL</span>RAMOS</a>
-            <ul class="nav-menu">
-                <li><a href="#controles">Controles</a></li>
-                <li><a href="#smarttv">Smart TV</a></li>
-                <li><a href="#celulares">Celulares</a></li>
-            </ul>
-            <div style="cursor:pointer; font-size: 1.4rem; font-weight: bold;" onclick="toggleCart()">
-                🛒 <span id="cartCount" style="color:var(--rojo-principal)">0</span>
+            <div class="logo">TUCONTROLRAMOS</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#controles">Controles</a></li>
+                    <li><a href="#smarttv">Smart TV</a></li>
+                    <li><a href="#celulares">Celulares</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon" onclick="toggleCart()">
+                🛒
+                <span class="cart-count" id="cartCount">0</span>
             </div>
         </div>
     </header>
 
     <section class="hero">
         <div class="hero-content">
-            <h1>Expertos en Tecnología</h1>
-            <p>Reparaciones con repuestos originales y garantía</p>
+            <h1>Reparaciones Profesionales</h1>
+            <p class="hero-subtitle">
+                Especialistas en <span class="hero-highlight">Controles Remotos</span>, 
+                <span class="hero-highlight">Smart TV</span> y 
+                <span class="hero-highlight">Celulares</span>
+            </p>
         </div>
-        <svg class="wave-divider" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,144C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
     </section>
 
-    <main>
-        <section id="controles" class="products-section">
-            <h2 class="section-title">Controles Remotos</h2>
-            <div class="products-grid" id="controlesGrid"></div>
-        </section>
+    <section class="featured-categories">
+        <div class="category-card" onclick="scrollToSection('controles')">
+            <div class="category-icon">📱</div>
+            <h3>Controles Remotos</h3>
+            <p>Amplio catálogo de controles universales y originales para todas las marcas</p>
+        </div>
+        <div class="category-card" onclick="scrollToSection('smarttv')">
+            <div class="category-icon">📺</div>
+            <h3>Reparación Smart TV</h3>
+            <p>Servicio técnico especializado en pantallas y sistemas operativos</p>
+        </div>
+        <div class="category-card" onclick="scrollToSection('celulares')">
+            <div class="category-icon">📲</div>
+            <h3>Reparación Celulares</h3>
+            <p>Cambio de pantallas, baterías y reparaciones de software</p>
+        </div>
+    </section>
 
-        <section id="smarttv" class="products-section">
-            <h2 class="section-title">Servicio Smart TV</h2>
-            <div class="products-grid" id="smarttvGrid"></div>
-        </section>
+    <section id="controles" class="products-section">
+        <h2 class="section-title">Controles Remotos</h2>
+        <div class="products-grid" id="controlesGrid"></div>
+    </section>
 
-        <section id="celulares" class="products-section">
-            <h2 class="section-title">Reparación de Celulares</h2>
-            <div class="products-grid" id="celularesGrid"></div>
-        </section>
-    </main>
+    <section id="smarttv" class="products-section">
+        <h2 class="section-title">Reparación Smart TV</h2>
+        <div class="products-grid" id="smarttvGrid"></div>
+    </section>
+
+    <section id="celulares" class="products-section">
+        <h2 class="section-title">Reparación Celulares</h2>
+        <div class="products-grid" id="celularesGrid"></div>
+    </section>
 
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
     <div class="cart-modal" id="cartModal">
         <div class="cart-header">
-            <h2>Tu Pedido</h2>
-            <button class="close-btn" onclick="toggleCart()">×</button>
+            <h2>Tu Carrito</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
         </div>
-        <div id="cartItems"></div>
-        <div style="border-top: 2px solid #eee; padding-top: 1.5rem;">
-            <h3 id="totalPrice" style="margin-bottom: 1.5rem; font-size: 1.5rem;">Total: $0</h3>
-            <button class="add-btn" style="width:100%;" onclick="sendWhatsApp()">Finalizar Pedido</button>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <p>Tu carrito está vacío</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="contacto">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span class="cart-total-amount" id="cartTotal">$0</span>
+            </div>
+            <button class="checkout-btn" onclick="checkoutMercadoPago()" id="checkoutBtn">
+                <span id="btnText">💳 Pagar con Mercado Pago</span>
+            </button>
+            <button class="whatsapp-btn" onclick="checkoutWhatsApp()">
+                📱 Consultar por WhatsApp
+            </button>
         </div>
     </div>
 
-    <div class="notification" id="notification">¡Agregado al carrito!</div>
+    <div class="notification" id="notification"></div>
+
+    <!-- Sección de Contacto -->
+    <section id="contacto" class="contact-section">
+        <div class="contact-container">
+            <h2 class="section-title">Contacto</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">📱</div>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <a href="https://wa.me/5491137651905">+54 9 11 3765-1905</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div>
+                            <h4>Email</h4>
+                            <a href="mailto:soyjuanwebb@yahoo.com">soyjuanwebb@yahoo.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">🕒</div>
+                        <div>
+                            <h4>Horarios</h4>
+                            <p>Lun-Vie: 9:00 - 18:00hs<br>Sáb: 9:00 - 13:00hs</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <h3>Envíanos tu consulta</h3>
+                    <p class="form-description">Completa el formulario y te responderemos a la brevedad</p>
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="Tu email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="telefono" name="telefono" placeholder="Tu teléfono (opcional)">
+                        </div>
+                        <div class="form-group">
+                            <select id="asunto" name="asunto" required>
+                                <option value="">Selecciona un asunto</option>
+                                <option value="Consulta Control Remoto">Consulta - Control Remoto</option>
+                                <option value="Consulta Smart TV">Consulta - Reparación Smart TV</option>
+                                <option value="Consulta Celular">Consulta - Reparación Celular</option>
+                                <option value="Presupuesto">Solicitud de Presupuesto</option>
+                                <option value="Garantia">Consulta de Garantía</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="mensaje" name="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            📧 Enviar Mensaje
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>TuControlRamos</h3>
+                <p>Tu solución en reparaciones electrónicas y controles remotos desde 2010</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <a href="tel:+5491137651905">+54 9 11 3765-1905</a>
+                <a href="mailto:soyjuanwebb@yahoo.com">soyjuanwebb@yahoo.com</a>
+                <p>Lun-Vie: 9:00 - 18:00hs<br>Sáb: 9:00 - 13:00hs</p>
+            </div>
+            <div class="footer-section">
+                <h3>Servicios</h3>
+                <a href="#controles">Controles Remotos</a>
+                <a href="#smarttv">Reparación Smart TV</a>
+                <a href="#celulares">Reparación Celulares</a>
+            </div>
+            <div class="footer-section">
+                <h3>Información</h3>
+                <a href="#">Garantía</a>
+                <a href="#">Envíos</a>
+                <a href="#">Términos y Condiciones</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TuControlRamos. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
     <script>
-        // Base de datos de productos (Asegúrate de tener estas fotos en tu carpeta img/)
+        // ⚙️ CONFIGURACIÓN - CAMBIA ESTO
+        const MP_PUBLIC_KEY = 'APP_USR-21e2b568-28e8-4378-b32f-3bd115b09f07';
+        const BACKEND_URL = 'http://localhost:3000'; // ⚠️ Cambiar por tu servidor en producción
+        
+        // Inicializar Mercado Pago
+        const mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' });
+
+        // Base de datos de productos
         const products = {
             controles: [
-                { id: 1, name: "Samsung Smart Original", price: 12500, img: "img/control-samsung.png" },
-                { id: 2, name: "LG Magic Remote", price: 18000, img: "img/control-lg.png" },
-                { id: 3, name: "Control Universal TV", price: 7500, img: "img/control-universal.png" }
+                { id: 1, name: "Control Universal Smart TV", description: "Compatible con Samsung, LG, Sony y más", price: 8500, icon: "📱", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=Control+Universal", badge: "Más vendido" },
+                { id: 2, name: "Control Original Samsung", description: "Control remoto original para TV Samsung", price: 12000, icon: "📱", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Samsung+Original", badge: "Original" },
+                { id: 3, name: "Control LG Magic Remote", description: "Control inteligente con puntero", price: 15000, icon: "📱", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=LG+Magic", badge: "Premium" },
+                { id: 4, name: "Control Universal Aire", description: "Compatible con todas las marcas", price: 6500, icon: "❄️", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Control+Aire", badge: null },
+                { id: 5, name: "Control Chromecast", description: "Control para Google Chromecast", price: 9500, icon: "📱", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=Chromecast", badge: null },
+                { id: 6, name: "Control Fire TV Stick", description: "Control para Amazon Fire TV", price: 9000, icon: "📱", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Fire+TV", badge: null }
             ],
             smarttv: [
-                { id: 4, name: "Reparación Pantalla LED", price: 45000, img: "img/reparacion-tv.png" },
-                { id: 5, name: "Actualización Sistema", price: 8000, img: "img/update.png" }
+                { id: 7, name: "Reparación Pantalla LED", description: "Cambio de panel LED completo", price: 35000, icon: "🔧", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=Pantalla+LED", badge: "Servicio" },
+                { id: 8, name: "Actualización Software", description: "Actualización del sistema operativo", price: 8000, icon: "💻", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Software", badge: null },
+                { id: 9, name: "Reparación HDMI", description: "Cambio de puerto HDMI", price: 12000, icon: "🔌", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=HDMI", badge: null },
+                { id: 10, name: "Reparación Audio", description: "Solución problemas de sonido", price: 15000, icon: "🔊", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Audio", badge: null },
+                { id: 11, name: "Cambio Fuente", description: "Reemplazo de fuente de alimentación", price: 18000, icon: "⚡", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=Fuente", badge: "Popular" },
+                { id: 12, name: "Diagnóstico Completo", description: "Revisión técnica integral", price: 5000, icon: "🔍", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Diagnostico", badge: null }
             ],
             celulares: [
-                { id: 6, name: "Cambio de Pantalla", price: 35000, img: "img/iphone-screen.png" },
-                { id: 7, name: "Cambio de Batería", price: 15000, img: "img/battery.png" }
+                { id: 13, name: "Cambio Pantalla iPhone", description: "Pantalla original iPhone 11/12/13", price: 45000, icon: "📱", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=iPhone", badge: "Original" },
+                { id: 14, name: "Cambio Batería iPhone", description: "Batería original certificada", price: 18000, icon: "🔋", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Bateria+iPhone", badge: null },
+                { id: 15, name: "Cambio Pantalla Samsung", description: "Pantalla AMOLED original", price: 38000, icon: "📱", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=Samsung", badge: "Original" },
+                { id: 16, name: "Cambio Batería Android", description: "Batería compatible alta capacidad", price: 12000, icon: "🔋", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Bateria", badge: null },
+                { id: 17, name: "Liberación de Equipo", description: "Liberación para todas las compañías", price: 8000, icon: "🔓", image: "https://via.placeholder.com/400x300/D32F2F/FFFFFF?text=Liberacion", badge: "Rápido" },
+                { id: 18, name: "Reparación Software", description: "Solución de problemas de sistema", price: 10000, icon: "⚙️", image: "https://via.placeholder.com/400x300/B71C1C/FFFFFF?text=Software", badge: null }
             ]
         };
 
         let cart = [];
 
-        function renderProducts() {
-            for (let cat in products) {
-                const grid = document.getElementById(`${cat}Grid`);
-                if (!grid) continue;
-                products[cat].forEach(p => {
-                    grid.innerHTML += `
-                        <div class="product-card">
-                            <img src="${p.img}" class="product-image" alt="${p.name}" onerror="this.src='https://via.placeholder.com/200?text=Producto'">
-                            <h3>${p.name}</h3>
-                            <span class="product-price">$${p.price.toLocaleString()}</span>
-                            <button class="add-btn" onclick="addToCart(${p.id}, '${p.name}', ${p.price})">AGREGAR</button>
-                        </div>
-                    `;
-                });
-            }
+        function loadProducts() {
+            const controlesGrid = document.getElementById('controlesGrid');
+            products.controles.forEach(product => {
+                controlesGrid.innerHTML += createProductCard(product);
+            });
+
+            const smarttvGrid = document.getElementById('smarttvGrid');
+            products.smarttv.forEach(product => {
+                smarttvGrid.innerHTML += createProductCard(product);
+            });
+
+            const celularesGrid = document.getElementById('celularesGrid');
+            products.celulares.forEach(product => {
+                celularesGrid.innerHTML += createProductCard(product);
+            });
         }
 
-        function addToCart(id, name, price) {
-            cart.push({id, name, price});
+        function createProductCard(product) {
+            const imageContent = product.image 
+                ? `<img src="${product.image}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'product-image-placeholder\\'>${product.icon}</div>';">`
+                : `<div class="product-image-placeholder">${product.icon}</div>`;
+            
+            return `
+                <div class="product-card">
+                    <div class="product-image">
+                        ${imageContent}
+                        ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-footer">
+                            <div class="product-price">$${product.price.toLocaleString('es-AR')}</div>
+                            <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
+                                Agregar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addToCart(productId) {
+            const allProducts = [...products.controles, ...products.smarttv, ...products.celulares];
+            const product = allProducts.find(p => p.id === productId);
+            
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
             updateCart();
-            showNotification();
+            showNotification(`${product.name} agregado al carrito`);
         }
 
         function updateCart() {
-            document.getElementById('cartCount').innerText = cart.length;
-            const itemsDiv = document.getElementById('cartItems');
-            let total = 0;
-            itemsDiv.innerHTML = "";
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
             
-            if(cart.length === 0) {
-                itemsDiv.innerHTML = "<p>El carrito está vacío.</p>";
-            }
-
-            cart.forEach((item, index) => {
-                total += item.price;
-                itemsDiv.innerHTML += `
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">🛒</div>
+                        <p>Tu carrito está vacío</p>
+                    </div>
+                `;
+            } else {
+                cartItems.innerHTML = cart.map(item => {
+                    const imageContent = item.image 
+                        ? `<img src="${item.image}" alt="${item.name}" onerror="this.parentElement.innerHTML='<div class=\\'cart-item-image-placeholder\\'>${item.icon}</div>';">`
+                        : `<div class="cart-item-image-placeholder">${item.icon}</div>`;
+                    
+                    return `
                     <div class="cart-item">
-                        <div>
-                            <strong>${item.name}</strong><br>
-                            $${item.price.toLocaleString()}
+                        <div class="cart-item-image">${imageContent}</div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${item.name}</div>
+                            <div class="cart-item-price">$${item.price.toLocaleString('es-AR')}</div>
+                            <div class="cart-item-quantity">
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                            </div>
                         </div>
-                        <button onclick="removeItem(${index})" style="border:none; background:none; cursor:pointer;">🗑️</button>
-                    </div>`;
-            });
-            document.getElementById('totalPrice').innerText = `Total: $${total.toLocaleString()}`;
+                        <button class="remove-item" onclick="removeFromCart(${item.id})">×</button>
+                    </div>
+                `}).join('');
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartTotal.textContent = `$${total.toLocaleString('es-AR')}`;
         }
 
-        function removeItem(index) {
-            cart.splice(index, 1);
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
             updateCart();
         }
 
         function toggleCart() {
-            document.getElementById('cartModal').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
+            const cartModal = document.getElementById('cartModal');
+            const overlay = document.getElementById('overlay');
+            cartModal.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
 
-        function showNotification() {
-            const n = document.getElementById('notification');
-            n.classList.add('show');
-            setTimeout(() => n.classList.remove('show'), 2000);
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
 
-        function sendWhatsApp() {
-            if(cart.length === 0) return alert("Tu carrito está vacío");
-            let msg = "Hola TuControlRamos! Quiero consultar por:%0A";
-            cart.forEach(i => msg += `- ${i.name} ($${i.price})%0A`);
-            msg += `%0A*Total estimado: ${document.getElementById('totalPrice').innerText}*`;
-            window.open(`https://wa.me/5491137651905?text=${msg}`);
+        async function checkoutMercadoPago() {
+            if (cart.length === 0) {
+                showNotification('Tu carrito está vacío');
+                return;
+            }
+
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const btnText = document.getElementById('btnText');
+            
+            checkoutBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Procesando...';
+
+            try {
+                const items = cart.map(item => ({
+                    title: item.name,
+                    description: item.description,
+                    quantity: item.quantity,
+                    unit_price: item.price,
+                    currency_id: 'ARS'
+                }));
+
+                const response = await fetch(`${BACKEND_URL}/create-preference`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: items,
+                        payer: { email: 'cliente@email.com' },
+                        back_urls: {
+                            success: window.location.href + '?status=success',
+                            failure: window.location.href + '?status=failure',
+                            pending: window.location.href + '?status=pending'
+                        },
+                        auto_return: 'approved'
+                    })
+                });
+
+                const preference = await response.json();
+
+                if (preference.init_point) {
+                    window.location.href = preference.init_point;
+                } else {
+                    throw new Error('No se pudo crear la preferencia de pago');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('⚠️ Configuración pendiente. Redirigiendo a WhatsApp...');
+                setTimeout(() => {
+                    checkoutWhatsApp();
+                }, 2000);
+            } finally {
+                checkoutBtn.disabled = false;
+                btnText.innerHTML = '💳 Pagar con Mercado Pago';
+            }
         }
 
-        window.onload = renderProducts;
+        function checkoutWhatsApp() {
+            if (cart.length === 0) {
+                showNotification('Tu carrito está vacío');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            let mensaje = `*PEDIDO - TuControlRamos*%0A%0A`;
+            mensaje += `*Productos:*%0A`;
+            
+            cart.forEach(item => {
+                mensaje += `• ${item.name} x${item.quantity} - $${(item.price * item.quantity).toLocaleString('es-AR')}%0A`;
+            });
+            
+            mensaje += `%0A*Total: $${total.toLocaleString('es-AR')}*%0A%0A`;
+            mensaje += `Quiero pagar con Mercado Pago`;
+            
+            const whatsappUrl = `https://wa.me/5491137651905?text=${mensaje}`;
+            window.open(whatsappUrl, '_blank');
+            
+            showNotification('Redirigiendo a WhatsApp...');
+        }
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function checkPaymentStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            
+            if (status === 'success') {
+                showNotification('✅ ¡Pago realizado con éxito!');
+                cart = [];
+                updateCart();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (status === 'failure') {
+                showNotification('❌ El pago fue rechazado');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (status === 'pending') {
+                showNotification('⏳ Pago pendiente de confirmación');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            checkPaymentStatus();
+            
+            // Manejar envío del formulario de contacto
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', handleContactForm);
+            }
+        });
+
+        function handleContactForm(e) {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const asunto = document.getElementById('asunto').value;
+            const mensaje = document.getElementById('mensaje').value;
+            
+            // Opción 1: Enviar por Email usando mailto
+            const subject = encodeURIComponent(`[TuControlRamos] ${asunto} - ${nombre}`);
+            const body = encodeURIComponent(
+                `Nombre: ${nombre}\n` +
+                `Email: ${email}\n` +
+                `Teléfono: ${telefono || 'No proporcionado'}\n` +
+                `Asunto: ${asunto}\n\n` +
+                `Mensaje:\n${mensaje}\n\n` +
+                `---\n` +
+                `Este mensaje fue enviado desde el formulario de contacto de TuControlRamos`
+            );
+            
+            const mailtoLink = `mailto:soyjuanwebb@yahoo.com?subject=${subject}&body=${body}`;
+            
+            // Opción 2: Enviar por WhatsApp (alternativa)
+            const whatsappMessage = encodeURIComponent(
+                `*CONSULTA - TuControlRamos*\n\n` +
+                `*Nombre:* ${nombre}\n` +
+                `*Email:* ${email}\n` +
+                `*Teléfono:* ${telefono || 'No proporcionado'}\n` +
+                `*Asunto:* ${asunto}\n\n` +
+                `*Mensaje:*\n${mensaje}`
+            );
+            
+            const whatsappLink = `https://wa.me/5491137651905?text=${whatsappMessage}`;
+            
+            // Mostrar opciones al usuario
+            if (confirm('¿Cómo deseas enviar tu consulta?\n\nOK = Por Email\nCancelar = Por WhatsApp')) {
+                // Enviar por Email
+                window.location.href = mailtoLink;
+                showNotification('📧 Abriendo tu cliente de email...');
+            } else {
+                // Enviar por WhatsApp
+                window.open(whatsappLink, '_blank');
+                showNotification('📱 Redirigiendo a WhatsApp...');
+            }
+            
+            // Limpiar formulario
+            setTimeout(() => {
+                contactForm.reset();
+            }, 1000);
+        }
     </script>
 </body>
 </html>
