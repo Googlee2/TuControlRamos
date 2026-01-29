@@ -369,14 +369,65 @@
 
         .product-footer {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .product-price {
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--rojo-principal);
+            text-align: center;
+        }
+
+        .product-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .product-quantity-display {
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            background-color: #f5f5f5;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid var(--rojo-principal);
+        }
+
+        .product-quantity-display.active {
+            display: flex;
+        }
+
+        .product-qty-btn {
+            background: var(--rojo-principal);
+            color: var(--blanco);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .product-qty-btn:hover {
+            background-color: var(--rojo-oscuro);
+            transform: scale(1.1);
+        }
+
+        .product-qty-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--negro);
+            min-width: 30px;
+            text-align: center;
         }
 
         .add-to-cart-btn {
@@ -384,22 +435,27 @@
             color: var(--blanco);
             border: none;
             padding: 0.8rem 1.5rem;
-            border-radius: 8px;
+            border-radius: 25px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             letter-spacing: 1px;
+            width: 100%;
         }
 
         .add-to-cart-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
         }
 
         .add-to-cart-btn:active {
             transform: scale(0.98);
+        }
+
+        .add-to-cart-btn.hidden {
+            display: none;
         }
 
         .cart-modal {
@@ -1157,7 +1213,7 @@
                 : `<div class="product-image-placeholder">${product.icon}</div>`;
             
             return `
-                <div class="product-card">
+                <div class="product-card" data-product-id="${product.id}">
                     <div class="product-image">
                         ${imageContent}
                         ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
@@ -1167,9 +1223,16 @@
                         <p class="product-description">${product.description}</p>
                         <div class="product-footer">
                             <div class="product-price">$${product.price.toLocaleString('es-AR')}</div>
-                            <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
-                                Agregar
-                            </button>
+                            <div class="product-controls">
+                                <button class="add-to-cart-btn" onclick="addToCart(${product.id})" id="add-btn-${product.id}">
+                                    🛒 Agregar
+                                </button>
+                                <div class="product-quantity-display" id="qty-display-${product.id}">
+                                    <button class="product-qty-btn" onclick="updateProductQuantity(${product.id}, -1)">−</button>
+                                    <span class="product-qty-number" id="qty-${product.id}">0</span>
+                                    <button class="product-qty-btn" onclick="updateProductQuantity(${product.id}, 1)">+</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1187,8 +1250,50 @@
                 cart.push({ ...product, quantity: 1 });
             }
             
+            // Actualizar UI del producto
+            updateProductUI(productId);
             updateCart();
             showNotification(`${product.name} agregado al carrito`);
+        }
+
+        function updateProductUI(productId) {
+            const item = cart.find(item => item.id === productId);
+            const addBtn = document.getElementById(`add-btn-${productId}`);
+            const qtyDisplay = document.getElementById(`qty-display-${productId}`);
+            const qtyNumber = document.getElementById(`qty-${productId}`);
+            
+            if (item && item.quantity > 0) {
+                addBtn.classList.add('hidden');
+                qtyDisplay.classList.add('active');
+                qtyNumber.textContent = item.quantity;
+            } else {
+                addBtn.classList.remove('hidden');
+                qtyDisplay.classList.remove('active');
+            }
+        }
+
+        function updateProductQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            
+            if (item) {
+                item.quantity += change;
+                
+                if (item.quantity <= 0) {
+                    // Remover del carrito
+                    cart = cart.filter(i => i.id !== productId);
+                }
+                
+                updateProductUI(productId);
+                updateCart();
+            }
+        }
+
+        function updateAllProductsUI() {
+            // Actualizar todos los productos para reflejar el estado del carrito
+            const allProducts = [...products.controles, ...products.smarttv, ...products.celulares];
+            allProducts.forEach(product => {
+                updateProductUI(product.id);
+            });
         }
 
         function updateCart() {
@@ -1240,6 +1345,7 @@
                 if (item.quantity <= 0) {
                     removeFromCart(productId);
                 } else {
+                    updateProductUI(productId);
                     updateCart();
                 }
             }
@@ -1247,6 +1353,7 @@
 
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
+            updateProductUI(productId);
             updateCart();
         }
 
@@ -1360,6 +1467,7 @@
                 showNotification('✅ ¡Pago realizado con éxito!');
                 cart = [];
                 updateCart();
+                updateAllProductsUI();
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (status === 'failure') {
                 showNotification('❌ El pago fue rechazado');
@@ -1435,3 +1543,4 @@
     </script>
 </body>
 </html>
+
