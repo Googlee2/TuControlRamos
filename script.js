@@ -1,37 +1,31 @@
-const BACKEND_URL = 'https://tucontrolramos-1.onrender.com';
-const WHATSAPP_NUMBER = '5491137651905'; // Tu número real corregido
+const express = require('express');
+const cors = require('cors');
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 
-function pagar() {
-    fetch(`${BACKEND_URL}/create-preference`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            items: [{
-                title: 'Control remoto',
-                quantity: 1,
-                unit_price: 8500
-            }]
-        })
-    })
-    .then(res => {
-        if (!res.ok) throw new Error('Error en el servidor');
-        return res.json();
-    })
-    .then(data => {
-        if (data.init_point) {
-            window.location.href = data.init_point;
-        } else {
-            alert('No se pudo iniciar el pago. Revisá los logs del backend.');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error de conexión. El servidor de Render podría estar arrancando, intentá de nuevo en 30 segundos.');
-    });
-}
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-function consultarWhatsApp() {
-    const msg = encodeURIComponent("Hola, quiero consultar por un control remoto");
-    // Usamos api.whatsapp.com para evitar el error 404
-    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${msg}`, '_blank');
-}
+// Reemplaza esto con tu Access Token real de Mercado Pago
+const client = new MercadoPagoConfig({ 
+    accessToken: APP_USR-7601542158283775-013015-7e32bf04d70e5e82149909b3d161a18e-3166344286'' 
+});
+
+app.post('/create-preference', async (req, res) => {
+    try {
+        const preference = new Preference(client);
+        const result = await preference.create({
+            body: {
+                items: req.body.items,
+                auto_return: "approved",
+            }
+        });
+        res.json({ init_point: result.init_point });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error en el servidor");
+    }
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
