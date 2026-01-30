@@ -1,42 +1,50 @@
-const BACKEND_URL = 'https://tucontrolramos-1.onrender.com';
-const WHATSAPP_NUMBER = '5491137651905'; // Tu número real sin espacios ni símbolos
+const express = require('express');
+const cors = require('cors');
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 
-function pagar() {
-    // Mostramos en consola que se inició el proceso
-    console.log("Conectando con el servidor...");
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-    fetch(`${BACKEND_URL}/create-preference`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            items: [{
-                title: 'Control remoto',
-                quantity: 1,
-                unit_price: 8500
-            }]
-        })
-    })
-    .then(res => {
-        if (!res.ok) throw new Error('Respuesta de red no satisfactoria');
-        return res.json();
-    })
-    .then(data => {
-        if (data.init_point) {
-            // Redirige al checkout de Mercado Pago
-            window.location.href = data.init_point;
-        } else {
-            alert('Error: El servidor no devolvió el link de pago.');
-        }
-    })
-    .catch(err => {
-        console.error("Error detallado:", err);
-        // Mensaje útil para cuando Render está "dormido"
-        alert('El servidor está arrancando. Por favor, intenta de nuevo en 20-30 segundos.');
-    });
-}
+// CONFIGURACIÓN DE MERCADO PAGO (PRODUCCIÓN)
+const client = new MercadoPagoConfig({ 
+    accessToken: 'APP_USR-3780959652238615-013015-0209af9b3a80a7739fee04c29024cef7-461844898' 
+});
 
-function consultarWhatsApp() {
-    const msg = encodeURIComponent("Hola, quiero consultar por un control remoto.");
-    // Usamos api.whatsapp.com que es más confiable para evitar el 404
-    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${msg}`, '_blank');
-}
+app.post('/create-preference', async (req, res) => {
+    try {
+        const preference = new Preference(client);
+        const result = await preference.create({
+            body: {
+                items: [
+                    {
+                        id: 'control-001',
+                        title: 'Control Remoto',
+                        quantity: 1,
+                        unit_price: 8500,
+                        currency_id: 'ARS' // Obligatorio para Argentina
+                    }
+                ],
+                back_urls: {
+                    success: "https://tucontrolramos.com",
+                    failure: "https://tucontrolramos.com",
+                    pending: "https://tucontrolramos.com"
+                },
+                auto_return: "approved",
+                statement_descriptor: "TUCONTROLRAMOS" // Cómo aparecerá en el resumen de la tarjeta
+            }
+        });
+
+        // IMPORTANTE: Enviamos el init_point
+        res.json({ init_point: result.init_point });
+    } catch (error) {
+        console.error("Error detallado de MP:", error);
+        res.status(500).json({ 
+            error: 'Error al crear el pago',
+            detalles: error.message 
+        });
+    }
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Servidor de Producción en puerto ${PORT}`));
