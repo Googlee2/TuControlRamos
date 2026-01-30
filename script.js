@@ -1,50 +1,42 @@
-const express = require('express');
-const cors = require('cors');
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+const BACKEND_URL = 'https://tucontrolramos-1.onrender.com';
+const WHATSAPP_NUMBER = '5491137651905'; // Tu número real sin espacios ni símbolos
 
-const app = express();
+function pagar() {
+    // Mostramos en consola que se inició el proceso
+    console.log("Conectando con el servidor...");
 
-// Configuración de Middlewares
-app.use(express.json());
-app.use(cors());
+    fetch(`${BACKEND_URL}/create-preference`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            items: [{
+                title: 'Control remoto',
+                quantity: 1,
+                unit_price: 8500
+            }]
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Respuesta de red no satisfactoria');
+        return res.json();
+    })
+    .then(data => {
+        if (data.init_point) {
+            // Redirige al checkout de Mercado Pago
+            window.location.href = data.init_point;
+        } else {
+            alert('Error: El servidor no devolvió el link de pago.');
+        }
+    })
+    .catch(err => {
+        console.error("Error detallado:", err);
+        // Mensaje útil para cuando Render está "dormido"
+        alert('El servidor está arrancando. Por favor, intenta de nuevo en 20-30 segundos.');
+    });
+}
 
-// CONFIGURACIÓN DE MERCADO PAGO
-// Reemplaza 'TU_ACCESS_TOKEN_REAL' por tu token de producción (empieza con APP_USR-)
-const client = new MercadoPagoConfig({ 
-    accessToken: 'APP_USR-7601542158283775-013015-7e32bf04d70e5e82149909b3d161a18e-3166344286' 
-});
-
-// Ruta para crear la preferencia de pago
-app.post('/create-preference', async (req, res) => {
-    try {
-        const preference = new Preference(client);
-        const result = await preference.create({
-            body: {
-                items: req.body.items,
-                back_urls: {
-                    success: "https://tucontrolramos.com", // Pon tu web aquí
-                    failure: "https://tucontrolramos.com",
-                    pending: "https://tucontrolramos.com"
-                },
-                auto_return: "approved",
-            }
-        });
-
-        // Enviamos el link de pago (init_point) al frontend
-        res.json({ init_point: result.init_point });
-    } catch (error) {
-        console.error("Error en Mercado Pago:", error);
-        res.status(500).json({ error: 'No se pudo crear el pago' });
-    }
-});
-
-// Ruta de prueba para verificar que el servidor está online
-app.get('/', (req, res) => {
-    res.send('Servidor de TuControlRamos funcionando correctamente.');
-});
-
-// Puerto dinámico para Render (importante)
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`Servidor activo en puerto ${PORT}`);
-});
+function consultarWhatsApp() {
+    const msg = encodeURIComponent("Hola, quiero consultar por un control remoto.");
+    // Usamos api.whatsapp.com que es más confiable para evitar el 404
+    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${msg}`, '_blank');
+}
