@@ -2,7 +2,7 @@
 // BACKEND PARA MERCADO PAGO - NODE.JS (RENDER)
 // ============================================
 
-require('dotenv').config();
+
 
 
 const mercadopago = require('mercadopago');
