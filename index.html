@@ -32,35 +32,41 @@
 </div>
 
 <script>
-    // Tu link de Render
-    const BACKEND_URL = 'https://tucontrolramos-1.onrender.com';
-    // Tu número corregido
+    // URL CORREGIDA: Apunta al nuevo servicio que creamos
+    const BACKEND_URL = 'https://tucontrolramos-backend.onrender.com';
+    
+    // Tu número de WhatsApp
     const WHATSAPP_NUMBER = '5491137651905'; 
 
     function pagar() {
         console.log("Iniciando pago...");
+        
+        // El botón ahora llama a la URL correcta de Render
         fetch(`${BACKEND_URL}/create-preference`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                items: [{
-                    title: 'Control remoto',
-                    quantity: 1,
-                    unit_price: 8500
-                }]
+                // Estos datos los procesa el server.js
+                title: 'Control remoto',
+                quantity: 1,
+                unit_price: 8500
             })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('Error en la respuesta del servidor');
+            return res.json();
+        })
         .then(data => {
             if (data.init_point) {
+                // Redirige al checkout oficial de Mercado Pago
                 window.location.href = data.init_point;
             } else {
-                alert('El servidor respondió pero no generó el pago. Revisa el Token en Render.');
+                alert('El servidor no devolvió un link de pago. Revisá los logs en Render.');
             }
         })
         .catch(err => {
-            console.error(err);
-            alert('Error: El servidor de Render está arrancando o fuera de línea. Reintenta en breve.');
+            console.error("Error detallado:", err);
+            alert('No se pudo conectar con el servidor de pago. Asegurate de que en Render diga "Live" en color verde.');
         });
     }
 
