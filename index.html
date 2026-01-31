@@ -1049,10 +1049,7 @@
             <button class="checkout-btn" onclick="checkoutMercadoPago()" id="checkoutBtn">
                 <span id="btnText">💳 Pagar con Mercado Pago</span>
             </button>
-            <button class="whatsapp-btn" onclick="pagar()">
-  Comprar ahora
-</button>
-
+            <button class="whatsapp-btn" onclick="checkoutWhatsApp()">
                 📱 Consultar por WhatsApp
             </button>
         </div>
@@ -1378,6 +1375,7 @@
             }, 3000);
         }
 
+        // 🔥 FUNCIÓN CORREGIDA - Sin redirección automática a WhatsApp
         async function checkoutMercadoPago() {
             if (cart.length === 0) {
                 showNotification('Tu carrito está vacío');
@@ -1414,21 +1412,25 @@
                     })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+
                 const preference = await response.json();
 
                 if (preference.init_point) {
+                    // ✅ Redirigir directamente a Mercado Pago
                     window.location.href = preference.init_point;
                 } else {
                     throw new Error('No se pudo crear la preferencia de pago');
                 }
 
             } catch (error) {
-                console.error('Error:', error);
-                showNotification('⚠️ Configuración pendiente. Redirigiendo a WhatsApp...');
-                setTimeout(() => {
-                    checkoutWhatsApp();
-                }, 2000);
-            } finally {
+                console.error('Error al procesar el pago:', error);
+                
+                // ❌ Solo mostrar el error, SIN redirigir a WhatsApp automáticamente
+                showNotification('❌ Error al conectar con Mercado Pago. Por favor intenta de nuevo o contacta por WhatsApp.');
+                
                 checkoutBtn.disabled = false;
                 btnText.innerHTML = '💳 Pagar con Mercado Pago';
             }
@@ -1450,7 +1452,7 @@
             });
             
             mensaje += `%0A*Total: $${total.toLocaleString('es-AR')}*%0A%0A`;
-            mensaje += `Quiero pagar con Mercado Pago`;
+            mensaje += `Quisiera hacer una compra`;
             
             const whatsappUrl = `https://wa.me/5491137651905?text=${mensaje}`;
             window.open(whatsappUrl, '_blank');
@@ -1547,6 +1549,5 @@
     </script>
 </body>
 </html>
-
 
 
