@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TuControlRamos - Controles Remotos y Reparaciones</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
-        /* Mantenemos tus estilos originales que están excelentes */
+        /* (Mantenemos tus estilos originales que son excelentes) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --rojo-principal: #D32F2F; --rojo-oscuro: #B71C1C; --rojo-claro: #EF5350;
@@ -14,32 +15,46 @@
             --gris-claro: #E0E0E0; --blanco: #FFFFFF;
         }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--blanco); color: var(--negro); overflow-x: hidden; }
-        .header { background: linear-gradient(135deg, var(--rojo-oscuro) 0%, var(--rojo-principal) 100%); padding: 1rem 0; position: sticky; top: 0; z-index: 1000; }
+        .header { background: linear-gradient(135deg, var(--rojo-oscuro) 0%, var(--rojo-principal) 100%); padding: 1rem 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(211, 47, 47, 0.3); }
         .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: var(--blanco); letter-spacing: 3px; }
         .nav-menu { display: flex; gap: 2rem; list-style: none; }
-        .nav-menu a { color: var(--blanco); text-decoration: none; font-weight: 600; text-transform: uppercase; }
-        .cart-icon { position: relative; cursor: pointer; font-size: 1.5rem; color: white; }
+        .nav-menu a { color: var(--blanco); text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; }
+        .cart-icon { position: relative; cursor: pointer; color: var(--blanco); font-size: 1.5rem; }
         .cart-count { position: absolute; top: -8px; right: -8px; background: var(--negro); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
-        .hero { background: linear-gradient(135deg, var(--negro) 0%, var(--gris-oscuro) 100%); padding: 6rem 2rem; text-align: center; color: white; }
-        .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 4.5rem; margin-bottom: 1rem; }
-        .products-section { max-width: 1400px; margin: 4rem auto; padding: 0 2rem; }
-        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: var(--rojo-principal); text-align: center; margin-bottom: 2rem; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-        .product-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        .product-price { font-size: 1.8rem; font-weight: 700; color: var(--rojo-principal); margin: 1rem 0; }
-        .add-to-cart-btn { background: var(--rojo-principal); color: white; border: none; padding: 0.8rem; border-radius: 25px; width: 100%; cursor: pointer; font-weight: 700; }
         
-        /* Estilos Carrito */
-        .cart-modal { position: fixed; top: 0; right: -100%; width: 400px; height: 100vh; background: white; z-index: 2000; transition: 0.4s; box-shadow: -5px 0 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        /* Hero & Sections */
+        .hero { background: linear-gradient(135deg, var(--negro) 0%, var(--gris-oscuro) 100%); padding: 6rem 2rem; text-align: center; color: white; }
+        .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; letter-spacing: 4px; margin-bottom: 1rem; }
+        .hero-highlight { color: var(--rojo-claro); }
+        
+        .featured-categories { max-width: 1400px; margin: -50px auto 4rem; padding: 0 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .category-card { background: var(--rojo-principal); border-radius: 15px; padding: 3rem; text-align: center; color: white; cursor: pointer; transition: 0.3s; }
+        .category-card:hover { transform: translateY(-10px); background: var(--rojo-oscuro); }
+
+        /* Grid de Productos */
+        .products-section { max-width: 1400px; margin: 4rem auto; padding: 0 2rem; }
+        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--rojo-principal); }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s; padding: 1.5rem; display: flex; flex-direction: column; gap: 10px; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-price { font-size: 1.8rem; font-weight: 800; color: var(--rojo-principal); }
+        .add-to-cart-btn { background: var(--negro); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .add-to-cart-btn:hover { background: var(--rojo-principal); }
+
+        /* Modal Carrito */
+        .cart-modal { position: fixed; top: 0; right: -100%; width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
         .cart-modal.active { right: 0; }
-        .cart-header { background: var(--rojo-principal); color: white; padding: 1.5rem; display: flex; justify-content: space-between; }
-        .cart-items { flex: 1; padding: 1rem; overflow-y: auto; color: black; }
-        .cart-footer { padding: 1.5rem; border-top: 1px solid #eee; }
-        .checkout-btn { width: 100%; background: #009EE3; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
-        .whatsapp-btn { width: 100%; background: #25D366; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .cart-header { background: var(--negro); color: white; padding: 1.5rem; display: flex; justify-content: space-between; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 1.5rem; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
+        .cart-footer { padding: 1.5rem; background: #f9f9f9; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1500; }
         .overlay.active { display: block; }
+        
+        .whatsapp-btn { background: #25D366; color: white; width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        @media (max-width: 768px) { .cart-modal { width: 100%; } .hero h1 { font-size: 2.5rem; } }
     </style>
 </head>
 <body>
@@ -47,122 +62,144 @@
     <header class="header">
         <div class="nav-container">
             <div class="logo">TUCONTROLRAMOS</div>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="#controles">Controles</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
-                </ul>
+            <nav class="nav-menu">
+                <a href="#controles">Controles</a>
+                <a href="#smarttv">Smart TV</a>
+                <a href="#celulares">Celulares</a>
             </nav>
-            <div class="cart-icon" onclick="toggleCart()">🛒 <span class="cart-count" id="cartCount">0</span></div>
+            <div class="cart-icon" onclick="toggleCart()">
+                🛒 <span class="cart-count" id="cartCount">0</span>
+            </div>
         </div>
     </header>
 
     <section class="hero">
-        <h1>Reparaciones Profesionales</h1>
-        <p>Especialistas en Controles, Smart TV y Celulares</p>
+        <h1>Reparaciones <span class="hero-highlight">Profesionales</span></h1>
+        <p>Especialistas en Controles Remotos, Smart TV y Celulares</p>
     </section>
 
-    <section id="controles" class="products-section">
-        <h2 class="section-title">Nuestros Productos</h2>
-        <div class="products-grid">
-            <div class="product-card">
-                <h3>Control Remoto Smart</h3>
-                <p class="product-price">$8.500</p>
-                <button class="add-to-cart-btn" onclick="addToCart('Control Remoto Smart', 8500)">Agregar al carrito</button>
-            </div>
-            <div class="product-card">
-                <h3>Reparación de Celular</h3>
-                <p class="product-price">$12.000</p>
-                <button class="add-to-cart-btn" onclick="addToCart('Reparación Celular', 12000)">Agregar al carrito</button>
-            </div>
+    <div class="featured-categories">
+        <div class="category-card" onclick="document.getElementById('controles').scrollIntoView()">
+            <h2>CONTROLES</h2>
+            <p>Venta y Reparación</p>
         </div>
+        <div class="category-card" onclick="document.getElementById('smarttv').scrollIntoView()">
+            <h2>SMART TV</h2>
+            <p>Servicio Técnico</p>
+        </div>
+        <div class="category-card" onclick="document.getElementById('celulares').scrollIntoView()">
+            <h2>CELULARES</h2>
+            <p>Pantallas y Baterías</p>
+        </div>
+    </div>
+
+    <section id="controles" class="products-section">
+        <h2 class="section-title">Controles Remotos</h2>
+        <div class="products-grid" id="controlesGrid"></div>
     </section>
 
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
     <div class="cart-modal" id="cartModal">
         <div class="cart-header">
-            <h2>Tu Carrito</h2>
-            <button onclick="toggleCart()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">×</button>
+            <h3>MI CARRITO</h3>
+            <button onclick="toggleCart()" style="background:none; border:none; color:white; font-size: 1.5rem; cursor:pointer;">×</button>
         </div>
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer">
-            <h3 style="margin-bottom:1rem; color: black;">Total: <span id="cartTotal">$0</span></h3>
-            <button class="checkout-btn" onclick="pagar()">💳 Pagar con Mercado Pago</button>
-            <button class="whatsapp-btn" onclick="consultarWhatsApp()">📱 Consultar por WhatsApp</button>
+            <h3 id="cartTotal">Total: $0</h3>
+            <button class="whatsapp-btn" onclick="sendWhatsApp()">
+                📱 Pedir por WhatsApp
+            </button>
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://tucontrolramos-backend.onrender.com';
-        let cart = [];
+        // DATOS DE PRODUCTOS
+        const productos = [
+            { id: 1, categoria: 'controles', nombre: 'Control Remoto Samsung Smart', precio: 8500, desc: 'Original / Genérico alta calidad' },
+            { id: 2, categoria: 'controles', nombre: 'Control Remoto LG Magic', precio: 12000, desc: 'Con puntero y comando de voz' },
+            { id: 3, categoria: 'controles', nombre: 'Control Universal Flow', precio: 5000, desc: 'Compatible con todos los decos' },
+            { id: 4, categoria: 'smarttv', nombre: 'Cambio de LEDs Smart TV', precio: 45000, desc: 'Reparación de imagen oscura' },
+            { id: 5, categoria: 'celulares', nombre: 'Cambio Pantalla iPhone 11', precio: 55000, desc: 'Calidad Original / OLED' }
+        ];
 
+        let carrito = [];
+
+        // Renderizar productos
+        function renderProductos() {
+            const grid = document.getElementById('controlesGrid');
+            grid.innerHTML = productos.map(p => `
+                <div class="product-card">
+                    <h3>${p.nombre}</h3>
+                    <p>${p.desc}</p>
+                    <div class="product-price">$${p.precio.toLocaleString()}</div>
+                    <button class="add-to-cart-btn" onclick="addToCart(${p.id})">AGREGAR AL CARRITO</button>
+                </div>
+            `).join('');
+        }
+
+        // Lógica de Carrito
         function toggleCart() {
             document.getElementById('cartModal').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function addToCart(name, price) {
-            cart.push({ name, price });
+        function addToCart(id) {
+            const producto = productos.find(p => p.id === id);
+            carrito.push(producto);
             updateCart();
-            alert(`${name} agregado al carrito`);
+            // Notificación simple
+            alert(`${producto.nombre} agregado!`);
         }
 
         function updateCart() {
-            const itemsContainer = document.getElementById('cartItems');
-            const totalContainer = document.getElementById('cartTotal');
-            const countContainer = document.getElementById('cartCount');
+            const container = document.getElementById('cartItems');
+            const count = document.getElementById('cartCount');
+            const total = document.getElementById('cartTotal');
             
-            itemsContainer.innerHTML = '';
-            let total = 0;
+            count.innerText = carrito.length;
+            
+            if (carrito.length === 0) {
+                container.innerHTML = '<p>Tu carrito está vacío</p>';
+                total.innerText = 'Total: $0';
+                return;
+            }
 
-            cart.forEach((item, index) => {
-                total += item.price;
-                itemsContainer.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                        <span>${item.name}</span>
-                        <span>$${item.price}</span>
+            let totalAcumulado = 0;
+            container.innerHTML = carrito.map((item, index) => {
+                totalAcumulado += item.precio;
+                return `
+                    <div class="cart-item">
+                        <span>${item.nombre}</span>
+                        <strong>$${item.precio.toLocaleString()}</strong>
+                        <button onclick="removeItem(${index})" style="color:red; border:none; background:none; cursor:pointer;">Eliminar</button>
                     </div>
                 `;
+            }).join('');
+            
+            total.innerText = `Total: $${totalAcumulado.toLocaleString()}`;
+        }
+
+        function removeItem(index) {
+            carrito.splice(index, 1);
+            updateCart();
+        }
+
+        function sendWhatsApp() {
+            if (carrito.length === 0) return alert("El carrito está vacío");
+            
+            let mensaje = "Hola TuControlRamos! Quiero estos productos:%0A";
+            carrito.forEach(item => {
+                mensaje += `- ${item.nombre} ($${item.precio})%0A`;
             });
-
-            totalContainer.innerText = `$${total}`;
-            countContainer.innerText = cart.length;
+            const total = carrito.reduce((sum, item) => sum + item.precio, 0);
+            mensaje += `%0A*Total: $${total}*`;
+            
+            window.open(`https://wa.me/5491137651905?text=${mensaje}`, '_blank');
         }
 
-        async function pagar() {
-            if (cart.length === 0) return alert("El carrito está vacío");
-
-            const btn = document.querySelector('.checkout-btn');
-            btn.innerText = "Procesando...";
-            btn.disabled = true;
-
-            try {
-                // Enviamos todo el carrito al backend
-                const response = await fetch(`${BACKEND_URL}/create-preference`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: cart })
-                });
-
-                const data = await response.json();
-                if (data.init_point) {
-                    window.location.href = data.init_point;
-                } else {
-                    throw new Error("No se recibió el link de pago");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Error al conectar con el servidor. Reintentá en un momento.");
-            } finally {
-                btn.innerText = "💳 Pagar con Mercado Pago";
-                btn.disabled = false;
-            }
-        }
-
-        function consultarWhatsApp() {
-            const msg = encodeURIComponent("Hola TuControlRamos, quiero consultar por mis productos.");
-            window.open(`https://wa.me/5491137651905?text=${msg}`, '_blank');
-        }
+        // Inicializar
+        renderProductos();
     </script>
 </body>
 </html>
