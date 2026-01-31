@@ -3,78 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuControlRamos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>TuControlRamos - Controles Remotos y Reparaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background: #111; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { max-width: 400px; width: 100%; text-align: center; }
-        h1 { font-weight: 700; margin-bottom: 5px; }
-        p { color: #aaa; margin-bottom: 25px; }
-        button { width: 100%; padding: 15px; margin: 10px 0; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-        .checkout-btn { background: #009ee3; color: #fff; }
-        .whatsapp-btn { background: #25D366; color: #fff; }
+        /* Mantenemos tus estilos originales que están excelentes */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --rojo-principal: #D32F2F; --rojo-oscuro: #B71C1C; --rojo-claro: #EF5350;
+            --negro: #1A1A1A; --gris-oscuro: #2C2C2C; --gris-medio: #757575;
+            --gris-claro: #E0E0E0; --blanco: #FFFFFF;
+        }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--blanco); color: var(--negro); overflow-x: hidden; }
+        .header { background: linear-gradient(135deg, var(--rojo-oscuro) 0%, var(--rojo-principal) 100%); padding: 1rem 0; position: sticky; top: 0; z-index: 1000; }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; color: var(--blanco); letter-spacing: 3px; }
+        .nav-menu { display: flex; gap: 2rem; list-style: none; }
+        .nav-menu a { color: var(--blanco); text-decoration: none; font-weight: 600; text-transform: uppercase; }
+        .cart-icon { position: relative; cursor: pointer; font-size: 1.5rem; color: white; }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: var(--negro); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+        .hero { background: linear-gradient(135deg, var(--negro) 0%, var(--gris-oscuro) 100%); padding: 6rem 2rem; text-align: center; color: white; }
+        .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 4.5rem; margin-bottom: 1rem; }
+        .products-section { max-width: 1400px; margin: 4rem auto; padding: 0 2rem; }
+        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: var(--rojo-principal); text-align: center; margin-bottom: 2rem; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+        .product-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        .product-price { font-size: 1.8rem; font-weight: 700; color: var(--rojo-principal); margin: 1rem 0; }
+        .add-to-cart-btn { background: var(--rojo-principal); color: white; border: none; padding: 0.8rem; border-radius: 25px; width: 100%; cursor: pointer; font-weight: 700; }
+        
+        /* Estilos Carrito */
+        .cart-modal { position: fixed; top: 0; right: -100%; width: 400px; height: 100vh; background: white; z-index: 2000; transition: 0.4s; box-shadow: -5px 0 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .cart-modal.active { right: 0; }
+        .cart-header { background: var(--rojo-principal); color: white; padding: 1.5rem; display: flex; justify-content: space-between; }
+        .cart-items { flex: 1; padding: 1rem; overflow-y: auto; color: black; }
+        .cart-footer { padding: 1.5rem; border-top: 1px solid #eee; }
+        .checkout-btn { width: 100%; background: #009EE3; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+        .whatsapp-btn { width: 100%; background: #25D366; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1500; }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>TuControlRamos</h1>
-    <p>Compra segura con Mercado Pago</p>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">TUCONTROLRAMOS</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#controles">Controles</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon" onclick="toggleCart()">🛒 <span class="cart-count" id="cartCount">0</span></div>
+        </div>
+    </header>
 
-    <button class="checkout-btn" onclick="pagar()">
-        💳 Pagar con Mercado Pago
-    </button>
+    <section class="hero">
+        <h1>Reparaciones Profesionales</h1>
+        <p>Especialistas en Controles, Smart TV y Celulares</p>
+    </section>
 
-    <button class="whatsapp-btn" onclick="consultarWhatsApp()">
-        📱 Consultar por WhatsApp
-    </button>
-</div>
+    <section id="controles" class="products-section">
+        <h2 class="section-title">Nuestros Productos</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <h3>Control Remoto Smart</h3>
+                <p class="product-price">$8.500</p>
+                <button class="add-to-cart-btn" onclick="addToCart('Control Remoto Smart', 8500)">Agregar al carrito</button>
+            </div>
+            <div class="product-card">
+                <h3>Reparación de Celular</h3>
+                <p class="product-price">$12.000</p>
+                <button class="add-to-cart-btn" onclick="addToCart('Reparación Celular', 12000)">Agregar al carrito</button>
+            </div>
+        </div>
+    </section>
 
-<script>
-    // URL CORREGIDA: Apunta al nuevo servicio que creamos
-    const BACKEND_URL = 'https://tucontrolramos-backend.onrender.com';
-    
-    // Tu número de WhatsApp
-    const WHATSAPP_NUMBER = '5491137651905'; 
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button onclick="toggleCart()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">×</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <h3 style="margin-bottom:1rem; color: black;">Total: <span id="cartTotal">$0</span></h3>
+            <button class="checkout-btn" onclick="pagar()">💳 Pagar con Mercado Pago</button>
+            <button class="whatsapp-btn" onclick="consultarWhatsApp()">📱 Consultar por WhatsApp</button>
+        </div>
+    </div>
 
-    function pagar() {
-        console.log("Iniciando pago...");
-        
-        // El botón ahora llama a la URL correcta de Render
-        fetch(`${BACKEND_URL}/create-preference`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                // Estos datos los procesa el server.js
-                title: 'Control remoto',
-                quantity: 1,
-                unit_price: 8500
-            })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Error en la respuesta del servidor');
-            return res.json();
-        })
-        .then(data => {
-            if (data.init_point) {
-                // Redirige al checkout oficial de Mercado Pago
-                window.location.href = data.init_point;
-            } else {
-                alert('El servidor no devolvió un link de pago. Revisá los logs en Render.');
+    <script>
+        const BACKEND_URL = 'https://tucontrolramos-backend.onrender.com';
+        let cart = [];
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+            alert(`${name} agregado al carrito`);
+        }
+
+        function updateCart() {
+            const itemsContainer = document.getElementById('cartItems');
+            const totalContainer = document.getElementById('cartTotal');
+            const countContainer = document.getElementById('cartCount');
+            
+            itemsContainer.innerHTML = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price;
+                itemsContainer.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                        <span>${item.name}</span>
+                        <span>$${item.price}</span>
+                    </div>
+                `;
+            });
+
+            totalContainer.innerText = `$${total}`;
+            countContainer.innerText = cart.length;
+        }
+
+        async function pagar() {
+            if (cart.length === 0) return alert("El carrito está vacío");
+
+            const btn = document.querySelector('.checkout-btn');
+            btn.innerText = "Procesando...";
+            btn.disabled = true;
+
+            try {
+                // Enviamos todo el carrito al backend
+                const response = await fetch(`${BACKEND_URL}/create-preference`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart })
+                });
+
+                const data = await response.json();
+                if (data.init_point) {
+                    window.location.href = data.init_point;
+                } else {
+                    throw new Error("No se recibió el link de pago");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error al conectar con el servidor. Reintentá en un momento.");
+            } finally {
+                btn.innerText = "💳 Pagar con Mercado Pago";
+                btn.disabled = false;
             }
-        })
-        .catch(err => {
-            console.error("Error detallado:", err);
-            alert('No se pudo conectar con el servidor de pago. Asegurate de que en Render diga "Live" en color verde.');
-        });
-    }
+        }
 
-    function consultarWhatsApp() {
-        const msg = encodeURIComponent("Hola, quiero consultar por un control remoto.");
-        window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${msg}`, '_blank');
-    }
-</script>
-
+        function consultarWhatsApp() {
+            const msg = encodeURIComponent("Hola TuControlRamos, quiero consultar por mis productos.");
+            window.open(`https://wa.me/5491137651905?text=${msg}`, '_blank');
+        }
+    </script>
 </body>
 </html>
